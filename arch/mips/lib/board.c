@@ -136,9 +136,15 @@ static int init_baudrate (void)
  * argument, and returns an integer return code, where 0 means
  * "continue" and != 0 means "fatal error, hang the system".
  */
+#if defined(CONFIG_JZSOC)
+extern int jz_board_init(void);
+#endif
 typedef int (init_fnc_t) (void);
 
 init_fnc_t *init_sequence[] = {
+#if defined(CONFIG_JZSOC)
+	jz_board_init,		/* init gpio/clocks/dram etc. */
+#endif
 	board_early_init_f,
 	timer_init,
 	env_init,		/* initialize environment */
@@ -193,6 +199,12 @@ void board_init_f(ulong bootflag)
 	 */
 	addr &= ~(4096 - 1);
 	debug ("Top of RAM usable for U-Boot at: %08lx\n", addr);
+
+#ifdef CONFIG_LCD
+        /* reserve memory for LCD display (always full pages) */
+        addr = lcd_setmem (addr);
+        gd->fb_base = addr;
+#endif /* CONFIG_LCD */
 
 	/* Reserve memory for U-Boot code, data & bss
 	 * round down to next 16 kB limit

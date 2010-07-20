@@ -24,6 +24,7 @@
 #include <common.h>
 #include <asm/mipsregs.h>
 
+#ifndef CONFIG_JZSOC
 static unsigned long timestamp;
 
 /* how many counter cycles in a jiffy */
@@ -96,3 +97,4 @@ ulong get_tbclk(void)
 {
 	return CONFIG_SYS_HZ;
 }
+#endif

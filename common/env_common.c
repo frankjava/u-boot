@@ -123,6 +123,12 @@ uchar default_environment[] = {
 #if defined(CONFIG_PCI_BOOTDELAY) && (CONFIG_PCI_BOOTDELAY > 0)
 	"pcidelay="	MK_STR(CONFIG_PCI_BOOTDELAY)	"\0"
 #endif
+#ifdef CONFIG_BOOTARGSFROMSD
+	"bootargsfromsd=" CONFIG_BOOTARGSFROMSD "\0"
+#endif
+#ifdef CONFIG_BOOTCOMMANDFROMSD
+	"bootcmdfromsd=" CONFIG_BOOTCOMMANDFROMSD "\0"
+#endif
 #ifdef  CONFIG_EXTRA_ENV_SETTINGS
 	CONFIG_EXTRA_ENV_SETTINGS
 #endif

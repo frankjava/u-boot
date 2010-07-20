@@ -182,8 +182,44 @@ typedef struct vidinfo {
 	u_long	mmio;		/* Memory mapped registers */
 } vidinfo_t;
 
-#else
+#elif defined(CONFIG_JZSOC)
+/*
+ * LCD controller stucture for JZSOC: JZ4740
+ */
+struct jz_fb_dma_descriptor {
+	u_long	fdadr;		/* Frame descriptor address register */
+	u_long	fsadr;		/* Frame source address register */
+	u_long	fidr;		/* Frame ID register */
+	u_long	ldcmd;		/* Command register */
+};
 
+/*
+ * Jz LCD info
+ */
+struct jz_fb_info {
+
+	u_long	fdadr0;	/* physical address of frame/palette descriptor */
+	u_long	fdadr1;	/* physical address of frame descriptor */
+
+	/* DMA descriptors */
+	struct	jz_fb_dma_descriptor *	dmadesc_fblow;
+	struct	jz_fb_dma_descriptor *	dmadesc_fbhigh;
+	struct	jz_fb_dma_descriptor *	dmadesc_palette;
+	u_long	screen;		/* address of frame buffer */
+	u_long	palette;	/* address of palette memory */
+	u_int	palette_size;
+};
+typedef struct vidinfo {
+	ushort	vl_col;		/* Number of columns (i.e. 640) */
+	ushort	vl_row;		/* Number of rows (i.e. 480) */
+	u_char	vl_bpix;	/* Bits per pixel, 0 = 1, 1 = 2, 2 = 4, 3 = 8 */
+
+	struct jz_fb_info jz_fb;
+} vidinfo_t;
+
+extern vidinfo_t panel_info;
+
+#else
 typedef struct vidinfo {
 	ushort	vl_col;		/* Number of columns (i.e. 160) */
 	ushort	vl_row;		/* Number of rows (i.e. 100) */
@@ -195,7 +231,7 @@ typedef struct vidinfo {
 	void	*priv;		/* Pointer to driver-specific data */
 } vidinfo_t;
 
-#endif /* CONFIG_MPC823, CONFIG_PXA250 or CONFIG_MCC200 or CONFIG_ATMEL_LCD */
+#endif /* CONFIG_MPC823, CONFIG_PXA250 or CONFIG_MCC200 or CONFIG_ATMEL_LCD CONFIG_JZ4740*/
 
 extern vidinfo_t panel_info;
 
@@ -235,6 +271,7 @@ void lcd_show_board_info(void);
 #define LCD_COLOR4	2
 #define LCD_COLOR8	3
 #define LCD_COLOR16	4
+#define LCD_COLOR32     5
 
 /*----------------------------------------------------------------------*/
 #if defined(CONFIG_LCD_INFO_BELOW_LOGO)
@@ -286,13 +323,22 @@ void lcd_show_board_info(void);
 # define CONSOLE_COLOR_GREY	14
 # define CONSOLE_COLOR_WHITE	15	/* Must remain last / highest	*/
 
-#else
+#elif LCD_BPP == LCD_COLOR16
 
 /*
  * 16bpp color definitions
  */
 # define CONSOLE_COLOR_BLACK	0x0000
 # define CONSOLE_COLOR_WHITE	0xffff	/* Must remain last / highest	*/
+
+#elif LCD_BPP == LCD_COLOR32
+/*
+ * 18,24,32 bpp color definitions
+ */
+# define CONSOLE_COLOR_BLACK	0x00000000
+# define CONSOLE_COLOR_WHITE	0xffffffff /* Must remain last / highest */
+
+#else
 
 #endif /* color definitions */
 
@@ -323,7 +369,7 @@ void lcd_show_board_info(void);
 #if LCD_BPP == LCD_MONOCHROME
 # define COLOR_MASK(c)		((c)	  | (c) << 1 | (c) << 2 | (c) << 3 | \
 				 (c) << 4 | (c) << 5 | (c) << 6 | (c) << 7)
-#elif (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16)
+#elif (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16) || (LCD_BPP == LCD_COLOR32)
 # define COLOR_MASK(c)		(c)
 #else
 # error Unsupported LCD BPP.
