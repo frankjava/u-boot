@@ -36,7 +36,129 @@
 	.globl _start
 	.text
 _start:
+#if defined(CONFIG_JZ4740)
 	.word JZ4740_NANDBOOT_CFG /* fetched during NAND Boot */
+#endif
+#if defined(CONFIG_JZ4760)
+	/* First 3 words fetched by CPU during NAND Boot
+	 * First 4 flags fetched by CPU during NAND Boot
+	 *	Flag name		Length(in byte)		Location(in byte)
+	 * 	buswidth_flag		64			0
+	 * 	rowcycle_flag		32			64
+	 * 	pagesize_flag1		32			96
+	 * 	pagesize_flag0		32			128
+	 *
+	 *	buswidth_flag	--	bus width(8/16bit)
+	 * 	0x55			8bit
+	 * 	0xaa			16bit
+	 *	rowcycle_flag	--	row cycle(2/3)
+	 *	0x55			2
+	 *	0xaa			3
+	 *	pagesize_flag1,		pagesize_flag0	--	pagesize(byte)
+	 * 	0x55			0x55			512
+	 *	0x55			0xaa			2048
+	 *	0xaa			0x55			4096
+	 *	0xaa			0xaa			8192
+	 */
+
+	/* buswidth_flag */
+#if (CONFIG_NAND_BW8 == 1)
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+#else
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa	
+#endif
+	/* rowcycle_flag */
+#if (CONFIG_NAND_ROW_CYCLE == 3)
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa	
+#else
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+#endif
+	/* pagesize_flag1 */
+#if (CONFIG_NAND_PAGE_SIZE < 4096)
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555	
+#else
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa	
+#endif
+	/* pagesize_flag0 */
+#if ((CONFIG_NAND_PAGE_SIZE == 512) || (CONFIG_NAND_PAGE_SIZE == 4096))
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555
+	.word	0x55555555	
+#else
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+	.word	0xaaaaaaaa
+#endif
+#endif /* CONFIG_JZ4760 */
+	
 reset:	
 	/* 
 	 * STATUS register

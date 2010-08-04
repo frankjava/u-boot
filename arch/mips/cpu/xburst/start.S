@@ -29,7 +29,13 @@
 #include <asm/addrspace.h>
 #include <asm/cacheops.h>
 
+#ifdef CONFIG_JZ4740
 #include <asm/jz4740.h>
+#endif
+
+#ifdef CONFIG_JZ4760
+#include <asm/jz4760.h>
+#endif
 
 	.set noreorder
 
@@ -72,6 +78,12 @@ relocate_code:
 	la	t3, in_ram
 	lw	t2, -12(t3)	/* t2 <-- uboot_end_data	*/
 	move	t1, a2
+#ifdef CONFIG_JZ4760	
+	subu	t2, t2, t0	/* total count in bytes */
+	srl	t2, t2, 2	/* total count in word */
+	li	t4, 0xa0000000
+	or	t0, t0, t4	/* uncached address */
+#endif
 
 	/*
 	 * Fix GOT pointer:
@@ -91,9 +103,17 @@ relocate_code:
 1:
 	lw	t3, 0(t0)
 	sw	t3, 0(t1)
+#ifdef CONFIG_JZ4740
 	addu	t0, 4
 	ble	t0, t2, 1b
 	addu	t1, 4			/* delay slot		*/
+#endif
+#ifdef CONFIG_JZ4760
+	addiu	t0, 4
+	addiu	t2, t2, -1
+	bgtz	t2, 1b
+	addiu	t1, 4	/* delay slot */
+#endif
 
 	/* If caches were enabled, we would have to flush them here.
 	 * flush d-cache */
