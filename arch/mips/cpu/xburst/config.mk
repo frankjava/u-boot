@@ -27,9 +27,6 @@ if [ "$v" -lt "14" ]; then \
 else \
 	echo "-march=4kc -mtune=4kc"; \
 fi)
-
-ENDIANNESS = -EL
-
-MIPSFLAGS += $(ENDIANNESS) -mabicalls -mips32 -O2
+MIPSFLAGS += -mabicalls -mips32 -O2
 
 PLATFORM_CPPFLAGS += $(MIPSFLAGS)

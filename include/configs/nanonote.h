@@ -13,10 +13,12 @@
 #ifndef __CONFIG_NANONOTE_H
 #define __CONFIG_NANONOTE_H
 
+#define CONFIG_CPU_LITTLE_ENDIAN
 #define CONFIG_MIPS32		1  /* MIPS32 CPU core */
 #define CONFIG_JzRISC		1  /* JzRISC core */
 #define CONFIG_JZSOC		1  /* Jz SoC */
 #define CONFIG_JZ4740		1  /* Jz4740 SoC */
+#define CONFIG_NAND_U_BOOT	1
 #define CONFIG_NANONOTE		1
 #define CONFIG_NAND_JZ4740
 
