@@ -28,12 +28,4 @@ else \
 	echo "-march=4kc -mtune=4kc"; \
 fi)
 
-ifneq (,$(findstring 4KCle,$(CROSS_COMPILE)))
-ENDIANNESS = -EL
-else
-ENDIANNESS = -EB
-endif
-
-MIPSFLAGS += $(ENDIANNESS)
-
 PLATFORM_CPPFLAGS += $(MIPSFLAGS)

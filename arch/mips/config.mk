@@ -23,8 +23,6 @@
 
 CROSS_COMPILE ?= mips_4KC-
 
-STANDALONE_LOAD_ADDR = 0x80200000 -T mips.lds
-
 PLATFORM_CPPFLAGS += -DCONFIG_MIPS -D__MIPS__
 
 #
@@ -50,3 +48,28 @@ PLATFORM_CPPFLAGS += -DCONFIG_MIPS -D__MIPS__
 PLATFORM_CPPFLAGS		+= -G 0 -mabicalls -fpic
 PLATFORM_CPPFLAGS		+= -msoft-float
 PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib
+
+#
+# We explicitly add the endianness specifier if needed, this allows
+# to compile kernels with a toolchain for the other endianness. We
+# carefully avoid to add it redundantly because gcc 3.3/3.4 complains
+# when fed the toolchain default!
+#
+# Certain gcc versions upto gcc 4.1.1 (probably 4.2-subversion as of
+# 2006-10-10 don't properly change the predefined symbols if -EB / -EL
+# are used, so we kludge that here.  A bug has been filed at
+# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=29413.
+#
+UNDEF_ALL += -UMIPSEB -U_MIPSEB -U__MIPSEB -U__MIPSEB__
+UNDEF_ALL += -UMIPSEL -U_MIPSEL -U__MIPSEL -U__MIPSEL__
+PREDEF_BE += -DMIPSEB -D_MIPSEB -D__MIPSEB -D__MIPSEB__
+PREDEF_LE += -DMIPSEL -D_MIPSEL -D__MIPSEL -D__MIPSEL__
+ifdef CONFIG_CPU_LITTLE_ENDIAN
+PLATFORM_CPPFLAGS	+= $(shell $(CC) -dumpmachine |grep -q 'mips.*el-.*' || echo -EL $(UNDEF_ALL) $(PREDEF_LE))
+PLATFORM_LDFLAGS	+= -EL
+else
+PLATFORM_CPPFLAGS	+= $(shell $(CC) -dumpmachine |grep -q 'mips.*el-.*' && echo -EB $(UNDEF_ALL) $(PREDEF_BE))
+PLATFORM_LDFLAGS	+= -EB
+endif
+
+STANDALONE_LOAD_ADDR = 0x80200000 -T mips.lds $(PLATFORM_LDFLAGS)

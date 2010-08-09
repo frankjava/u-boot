@@ -28,6 +28,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_CPU_LITTLE_ENDIAN
+
 #define CONFIG_MIPS32		1  /* MIPS32 CPU core	*/
 #define CONFIG_PB1X00		1
 #define CONFIG_SOC_AU1X00	1  /* alchemy series cpu */

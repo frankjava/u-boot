@@ -2314,6 +2314,7 @@ dbau1550_config		:	unconfig
 dbau1550_el_config	:	unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_DBAU1550 1" >$(obj)include/config.h
+	@echo "#define CONFIG_CPU_LITTLE_ENDIAN" >>$(obj)include/config.h
 	@$(MKCONFIG) -a dbau1x00 mips mips dbau1x00
 
 gth2_config		:	unconfig
