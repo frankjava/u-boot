@@ -35,6 +35,7 @@
 #define JZ_NAND_ADDR_ADDR (JZ_NAND_DATA_ADDR + 0x800000)
 
 static int par_size;
+static int is_reading;
 
 struct nand_ecclayout ecclayout_2gb = {
 	.eccbytes = 104,
@@ -59,7 +60,6 @@ static void jz_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct jz_nand *nand =  mtd->priv;
 	struct nand_chip *chip = mtd->priv;
-	uint32_t reg;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		if (ctrl & NAND_ALE)
@@ -114,6 +114,10 @@ static int jzsoc_nand_calculate_bch_ecc(struct mtd_info *mtd, const u_char * dat
 	struct nand_chip *this = (struct nand_chip *)(mtd->priv);
 	volatile u8 *paraddr = (volatile u8 *)BCH_PAR0;
 	short i;
+
+	if(is_reading)
+		return 0;
+
 #ifdef CONFIG_NAND_BCH_WITH_OOB
 	/* Write data to REG_BCH_DR */
 	for (i = 0; i < this->ecc.size; i++) {
@@ -147,6 +151,7 @@ static void jzsoc_nand_enable_bch_hwecc(struct mtd_info* mtd, int mode)
 	REG_BCH_INTS = 0xffffffff;
 
 	if (mode == NAND_ECC_READ) {
+		is_reading = 1;
 		if (CONFIG_NAND_BCH_BIT == 8)
 			__ecc_decoding_8bit();
 		else
@@ -159,6 +164,7 @@ static void jzsoc_nand_enable_bch_hwecc(struct mtd_info* mtd, int mode)
 	}
 
 	if (mode == NAND_ECC_WRITE) {
+		is_reading = 0;
 		if (CONFIG_NAND_BCH_BIT == 8)
 			__ecc_encoding_8bit();
 		else
