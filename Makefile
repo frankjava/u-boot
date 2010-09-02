@@ -2381,6 +2381,19 @@ sakc_config	: unconfig
 	@echo "TEXT_BASE = 0x80100000" > $(obj)board/xburst/sakc/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
+lepus_nand_config:	unconfig
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@echo "#define CONFIG_SDRAM_DDR2" >> $(obj)include/config.h
+	@echo "Compile NAND boot image for lepus"
+	@$(MKCONFIG) -a lepus mips xburst lepus xburst
+	@echo "TEXT_BASE = 0x80100000" > $(obj)board/xburst/lepus/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+	@echo "CONFIG_CPU_TYPE = 4760" >> $(obj)include/config.mk
+	@echo "CONFIG_USE_MDDR = n" >> $(obj)include/config.mk
+	@echo "CONFIG_USE_DDR1 = n" >> $(obj)include/config.mk
+	@echo "CONFIG_USE_DDR2 = y" >> $(obj)include/config.mk
+	@echo "CONFIG_USE_SDRAM = n" >> $(obj)include/config.mk
+
 #========================================================================
 # SH3 (SuperH)
 #========================================================================

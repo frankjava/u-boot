@@ -24,12 +24,15 @@
  */
 
 #include <config.h>
-
-#if defined(CONFIG_JZ4740)
-
 #include <common.h>
 
+#if defined(CONFIG_JZ4740)
 #include <asm/jz4740.h>
+#endif
+ 
+#if defined(CONFIG_JZ4760)
+#include <asm/jz4760.h>
+#endif
  
 #undef UART_BASE
 #ifndef CONFIG_SYS_UART_BASE
@@ -138,4 +141,20 @@ int serial_tstc (void)
 	return 0;
 }
 
-#endif
+void serial_put_hex(unsigned int  d)
+{
+	unsigned char c[12];
+	char i;
+	for(i = 0; i < 8;i++)
+	{
+		c[i] = (d >> ((7 - i) * 4)) & 0xf;
+		if(c[i] < 10)
+			c[i] += 0x30;
+		else
+			c[i] += (0x41 - 10);
+	}
+	c[8] = '\n';
+	c[9] = 0;
+	serial_puts(c);
+
+}

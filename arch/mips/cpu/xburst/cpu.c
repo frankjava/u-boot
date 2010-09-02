@@ -27,7 +27,14 @@
 #include <asm/mipsregs.h>
 #include <asm/cacheops.h>
 #include <asm/reboot.h>
+
+#ifdef CONFIG_JZ4740
 #include <asm/jz4740.h>
+#endif
+ 
+#ifdef CONFIG_JZ4760
+#include <asm/jz4760.h>
+#endif
 
 #if !defined (CONFIG_NAND_SPL) && !defined (CONFIG_MSC_SPL) 
 

@@ -33,6 +33,13 @@ COBJS-y += jz_mmc.o
 COBJS-$(CONFIG_NANONOTE) += nanonote_gpm940b0.o
 COBJS-$(CONFIG_SAKC)	+= nanonote_gpm940b0.o
 
+COBJS-$(CONFIG_JZ4760) += jz4760.o jz4760_nand.o jz4760_eth.o
+COBJS-$(CONFIG_USE_MDDR) += jz4760_ddr.o jz_mddr_init.o
+COBJS-$(CONFIG_USE_DDR1) += jz4760_ddr.o jz_ddr1_init.o
+COBJS-$(CONFIG_USE_DDR2) += jz4760_ddr.o jz_ddr2_init.o
+COBJS-$(CONFIG_USE_SDRAM) += jz4760_sdram.o
+
+
 SRCS	:= $(START:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 START	:= $(addprefix $(obj),$(START))
