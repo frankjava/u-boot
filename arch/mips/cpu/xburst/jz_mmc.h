@@ -14,7 +14,6 @@
 #define __MMC_JZMMC_H__
 
 #define MMC_DEBUG_LEVEL		0		/* Enable Debug: 0 - no debug */
-#define MMC_BLOCK_SIZE		512		/* MMC/SD Block Size */
 #define ID_TO_RCA(x) ((x)+1)
 #define MMC_OCR_ARG		0x00ff8000	/* Argument of OCR */
 

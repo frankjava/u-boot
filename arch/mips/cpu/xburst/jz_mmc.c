@@ -29,6 +29,8 @@
 #include <asm/jz4740.h>
 #include "jz_mmc.h"
 
+#define debug(...) ;
+
 #define CFG_MMC_BASE		0x80600000
 static int sd2_0 = 0;
 
@@ -90,7 +92,7 @@ block_dev_desc_t * mmc_get_dev(int dev)
  * FIXME needs to read cid and csd info to determine block size
 v * and other parameters
  */
-static uchar mmc_buf[MMC_BLOCK_SIZE];
+static uchar mmc_buf[1024];
 static int mmc_ready = 0;
 static int use_4bit;                    /* Use 4-bit data bus */
 /*
@@ -552,29 +554,28 @@ int mmc_block_read(u8 *dst, ulong src, ulong len)
 
 	struct mmc_request request;
 	struct mmc_response_r1 r1;
-	int retval;
+	int retval = 0;
 
-	if (len == 0) {
-		return 0;
-	}
+	if (len == 0)
+		goto exit;
+
 	mmc_simple_cmd(&request, MMC_CMD_SEND_STATUS, mmcinfo.rca, RESPONSE_R1);
 	retval = mmc_unpack_r1(&request, &r1, 0);
-	if (retval && (retval != MMC_ERROR_STATE_MISMATCH)) {
-		return retval;
-	}
+	if (retval && (retval != MMC_ERROR_STATE_MISMATCH))
+		goto exit;
 
 	mmc_simple_cmd(&request, MMC_CMD_SET_BLOCKLEN, len, RESPONSE_R1);
-	if ((retval = mmc_unpack_r1(&request, &r1, 0))) {
-		return retval;
-	}
+	if ((retval = mmc_unpack_r1(&request, &r1, 0)))
+		goto exit;
 
 	if (sd2_0)
 		src /= len;
 
 	mmc_send_cmd(&request, MMC_CMD_READ_SINGLE_BLOCK, src, 1,len, RESPONSE_R1, dst);
-	if ((retval = mmc_unpack_r1(&request, &r1, 0))) {
-		return retval;
-	}
+	if ((retval = mmc_unpack_r1(&request, &r1, 0)))
+		goto exit;
+
+exit:
 	return retval;
 }
 
@@ -593,14 +594,15 @@ int xburst_mmc_read(u64 src, uchar *dst, int size)
 	}
 
 	if (!mmc_ready) {
-		printf("MMC card is not ready\n");
+		printf("Please initial the MMC first\n");
 		return -1;
 	}
 
-	mmc_block_size = MMC_BLOCK_SIZE;
+	debug("---- start %s ---- \n", __func__);
+
+	mmc_block_size = mmcinfo.block_len;
 	mmc_block_address = ~(mmc_block_size - 1);
 
-	//src -= CFG_MMC_BASE;
 	end = src + size;
 	part_start = ~mmc_block_address & src;
 	part_end = ~mmc_block_address & end;
@@ -608,30 +610,35 @@ int xburst_mmc_read(u64 src, uchar *dst, int size)
 	aligned_end = mmc_block_address & end;
 	/* all block aligned accesses */
 	debug("src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
-	src, (ulong)dst, end, part_start, part_end, aligned_start, aligned_end);
+	      src, (ulong)dst, end, part_start, part_end, aligned_start, 
+	      aligned_end);
+
 	if (part_start) {
 		part_len = mmc_block_size - part_start;
 		debug("ps src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
-		src, (ulong)dst, end, part_start, part_end, aligned_start, aligned_end);
+		     src, (ulong) dst, end, part_start, part_end, aligned_start,
+		     aligned_end);
+
 		if ((mmc_block_read(mmc_buf, aligned_start, mmc_block_size)) < 0) {
+
 			return -1;
 		}
-		memcpy(dst, mmc_buf+part_start, part_len);
+		memcpy(dst, mmc_buf + part_start, part_len);
 		dst += part_len;
 		src += part_len;
 	}
-	debug("src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
-	src, (ulong)dst, end, part_start, part_end, aligned_start, aligned_end);
+
 	for (; src < aligned_end; src += mmc_block_size, dst += mmc_block_size) {
-		debug("al src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
+		debug("src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
 		src, (ulong)dst, end, part_start, part_end, aligned_start, aligned_end);
 
 		if ((mmc_block_read((uchar *)(dst), src, mmc_block_size)) < 0) {
 			return -1;
 		}
 	}
+
 	debug("src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
-	src, (ulong)dst, end, part_start, part_end, aligned_start, aligned_end);
+	      src, (ulong)dst, end, part_start, part_end, aligned_start, aligned_end);
 
 	if (part_end && src < end) {
 		if ((mmc_block_read(mmc_buf, aligned_end, mmc_block_size)) < 0) {
@@ -639,8 +646,9 @@ int xburst_mmc_read(u64 src, uchar *dst, int size)
 		}
 		memcpy(dst, mmc_buf, part_end);
 	}
-	return 0;
 
+	debug("---- end %s ---- \n", __func__);
+	return 0;
 }
 
 int mmc_write(uchar *src, ulong dst, int size)
@@ -657,7 +665,7 @@ int mmc_write(uchar *src, ulong dst, int size)
 		return -1;
 	}
 
-	mmc_block_size = MMC_BLOCK_SIZE;
+	mmc_block_size = mmcinfo.block_len;
 	mmc_block_address = ~(mmc_block_size - 1);
 
 	dst -= CFG_MMC_BASE;
@@ -711,10 +719,9 @@ int mmc_write(uchar *src, ulong dst, int size)
 
 ulong mmc_bread(int dev_num, ulong blknr, ulong blkcnt, ulong *dst)
 {
-	ulong src;
-	int mmc_block_size = MMC_BLOCK_SIZE;
+	int mmc_block_size = mmcinfo.block_len;
+	ulong src = blknr * mmc_block_size ;//+ CFG_MMC_BASE;
 
-	src = blknr * mmc_block_size ;//+ CFG_MMC_BASE;
 	xburst_mmc_read(src, (uchar *)dst, blkcnt*mmc_block_size);
 	return blkcnt;
 }
@@ -858,22 +865,20 @@ static int mmc_init_card_state(struct mmc_request *request)
         case SD_CMD_APP_SEND_OP_COND:
                 retval = mmc_unpack_r3(request, &r3);
                 if (retval) {
-                  /* Try MMC card */
-                    mmc_simple_cmd(request, SD_CMD_APP_SEND_OP_COND, MMC_OCR_ARG, RESPONSE_R3);
-                    break;
+			debug("%s: try MMC card\n", __func__);
+			mmc_simple_cmd(request, SD_CMD_APP_SEND_OP_COND, MMC_OCR_ARG, RESPONSE_R3);
+			break;
 		}
 
                 debug("%s: read ocr value = 0x%08x\n", __func__, r3.ocr);
 
 		if(!(r3.ocr & MMC_CARD_BUSY || ocr == 0)){
-			udelay(10000);
+			udelay(50000);
 			mmc_simple_cmd(request, MMC_CMD_APP_CMD, 0, RESPONSE_R1);
-		}
-		else {
-		  /* Set the data bus width to 4 bits */
-                  mmcinfo.sd = 1; /* SD Card ready */
-                  mmcinfo.state = CARD_STATE_READY;
-		  mmc_simple_cmd(request, MMC_CMD_ALL_SEND_CID, 0, RESPONSE_R2_CID);
+		} else {
+			mmcinfo.sd = 1; /* SD Card ready */
+			mmcinfo.state = CARD_STATE_READY;
+			mmc_simple_cmd(request, MMC_CMD_ALL_SEND_CID, 0, RESPONSE_R2_CID);
 		}
 		break;
 
