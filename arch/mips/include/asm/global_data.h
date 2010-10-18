@@ -39,6 +39,18 @@
 typedef	struct	global_data {
 	bd_t		*bd;
 	unsigned long	flags;
+#if defined(CONFIG_JZSOC)
+        /* There are other clocks in the Jz47xx or Jz5730*/
+        unsigned long   cpu_clk;        /* CPU core clock */
+        unsigned long   sys_clk;        /* System bus clock */
+        unsigned long   per_clk;        /* Peripheral bus clock */
+        unsigned long   mem_clk;        /* Memory bus clock */
+        unsigned long   dev_clk;        /* Device clock */
+        unsigned long   fb_base;        /* base address of framebuffer */
+#endif
+#if defined(CONFIG_NANONOTE)
+        unsigned long   boot_option;
+#endif
 	unsigned long	baudrate;
 	unsigned long	have_console;	/* serial_init() was called */
 	phys_size_t	ram_size;	/* RAM size */

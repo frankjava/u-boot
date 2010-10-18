@@ -2353,6 +2353,16 @@ bf527-ezkit-v2_config	: unconfig
 	@$(MKCONFIG) -t BF527_EZKIT_REV_2_1 \
 		bf527-ezkit blackfin blackfin bf527-ezkit
 
+#########################################################################
+## MIPS32 XBurst jz4740
+#########################################################################
+qi_lb60_config  : unconfig
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@echo "Compile NAND boot image for QI LB60"
+	@$(MKCONFIG) -a qi_lb60 mips xburst nanonote xburst
+	@echo "TEXT_BASE = 0x80100000" > $(obj)board/xburst/nanonote/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 #========================================================================
 # SH3 (SuperH)
 #========================================================================

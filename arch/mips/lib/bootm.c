@@ -46,9 +46,16 @@ static void linux_env_set (char * env_name, char * env_val);
 int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
 {
 	void	(*theKernel) (int, char **, char **, int *);
-	char	*commandline = getenv ("bootargs");
+	char	*commandline;
 	char	env_buf[12];
 	char	*cp;
+
+#if defined(CONFIG_NANONOTE)
+        if (gd->boot_option & BOOT_FROM_SDCARD)
+                commandline = getenv ("bootargsfromsd");
+        else
+#endif
+                commandline = getenv ("bootargs");
 
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;

@@ -39,6 +39,7 @@ COBJS-$(CONFIG_SED156X) += sed156x.o
 COBJS-$(CONFIG_VIDEO_SM501) += sm501.o
 COBJS-$(CONFIG_VIDEO_SMI_LYNXEM) += smiLynxEM.o videomodes.o
 COBJS-$(CONFIG_VIDEO_VCXK) += bus_vcxk.o
+COBJS-$(CONFIG_VIDEO_GPM940B0) += nanonote_gpm940b0.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

@@ -253,6 +253,14 @@ static void lcd_drawchars (ushort x, ushort y, uchar *str, int count)
 						lcd_color_fg : lcd_color_bg;
 				bits <<= 1;
 			}
+#elif LCD_BPP == LCD_COLOR32
+			uint *m = (uint *)d;
+			for (c=0; c<32; ++c) {
+				*m++ = (bits & 0x80) ?
+						lcd_color_fg : lcd_color_bg;
+				//d+=4;
+				bits <<= 1;
+			}
 #endif
 		}
 #if LCD_BPP == LCD_MONOCHROME
@@ -319,6 +327,9 @@ static void test_pattern (void)
 }
 #endif /* LCD_TEST_PATTERN */
 
+#ifdef CONFIG_JzRISC		  /* JzRISC core */ 
+extern int flush_cache_all(void);
+#endif
 
 /************************************************************************/
 /* ** GENERIC Initialization Routines					*/
@@ -385,6 +396,7 @@ static int lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 		COLOR_MASK(lcd_getbgcolor()),
 		lcd_line_length*panel_info.vl_row);
 #endif
+
 	/* Paint the logo and retrieve LCD base address */
 	debug ("[LCD] Drawing the logo...\n");
 	lcd_console_address = lcd_logo ();
