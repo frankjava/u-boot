@@ -2331,6 +2331,25 @@ qemu_mips_config	: unconfig
 	@echo "#define CONFIG_QEMU_MIPS 1" >$(obj)include/config.h
 	@$(MKCONFIG) -a qemu-mips mips mips qemu-mips
 
+n516_config	: unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_N516 1" >>include/config.h
+	@$(MKCONFIG) -a n516 mips xburst n516 xburst
+
+n516_nand_config: unconfig
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@echo "Compile NAND boot image for n516"
+	@$(MKCONFIG) -a n516 mips xburst n516 xburst
+	@echo "TEXT_BASE = 0x80100000" > $(obj)board/xburst/n516/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
+sakc_config	: unconfig
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@echo "Compile NAND boot image for SAKC"
+	@$(MKCONFIG) -a sakc mips xburst sakc xburst
+	@echo "TEXT_BASE = 0x80100000" > $(obj)board/xburst/sakc/config.tmp
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 #========================================================================
 # Nios
 #========================================================================
