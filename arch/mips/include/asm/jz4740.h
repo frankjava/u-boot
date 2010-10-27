@@ -193,7 +193,6 @@ static inline void jz_flush_icache(void)
 #define RTC_HWRSR_PIN		(1 << 1)  /* Wakeup pin status bit */
 #define RTC_HWRSR_ALM		(1 << 0)  /* RTC alarm status bit */
 
-
 /*************************************************************************
  * CPM (Clock reset and Power control Management)
  *************************************************************************/
