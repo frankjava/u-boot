@@ -1,7 +1,7 @@
 /*
  * JzRISC lcd controller
  *
- * xiangfu liu <xiangfu.z@gmail.com>
+ * Xiangfu Liu <xiangfu@sharism.cc>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,125 +86,105 @@ struct lcd_desc{
 /*
  * LCD panel specific definition
  */
-#define MODE	0xc9		/* 8bit serial RGB */
-#define SPEN	(32*2+21)       /*LCD_SPL */
-#define SPCK	(32*2+23)       /*LCD_CLS */
-#define SPDA	(32*2+22)       /*LCD_D12 */
-#define LCD_RET (32*3+27) 
+#define MODE	(0xc9)		/* 8bit serial RGB */
 
-#define __spi_write_reg1(reg, val) \
-do { \
-	unsigned char no;\
-	unsigned short value;\
-	unsigned char a=0;\
-	unsigned char b=0;\
-	a=reg;\
-	b=val;\
-	__gpio_set_pin(SPEN);\
-	__gpio_set_pin(SPCK);\
-	__gpio_clear_pin(SPDA);\
-	__gpio_clear_pin(SPEN);\
-	udelay(25);\
-	value=((a<<8)|(b&0xFF));\
-	for(no=0;no<16;no++)\
-	{\
-		__gpio_clear_pin(SPCK);\
-		if((value&0x8000)==0x8000)\
-		__gpio_set_pin(SPDA);\
-		else\
-		__gpio_clear_pin(SPDA);\
-		udelay(25);\
-		__gpio_set_pin(SPCK);\
-		value=(value<<1); \
-		udelay(25);\
-	 }\
-	__gpio_set_pin(SPEN);\
-	udelay(100);\
+#define __spi_write_reg1(reg, val)		\
+do {						\
+	unsigned char no;			\
+	unsigned short value;			\
+	unsigned char a=reg;			\
+	unsigned char b=val;			\
+	__gpio_set_pin(SPEN);			\
+	__gpio_set_pin(SPCK);			\
+	__gpio_clear_pin(SPDA);			\
+	__gpio_clear_pin(SPEN);			\
+	udelay(25);				\
+	value=((a<<8)|(b&0xFF));		\
+	for(no=0;no<16;no++)			\
+	{					\
+		__gpio_clear_pin(SPCK);		\
+		if((value&0x8000)==0x8000)	\
+			__gpio_set_pin(SPDA);	\
+		else				\
+			__gpio_clear_pin(SPDA);	\
+		udelay(25);			\
+		__gpio_set_pin(SPCK);		\
+		value=(value<<1);		\
+		udelay(25);			\
+	}					\
+	__gpio_set_pin(SPEN);			\
+	udelay(100);				\
 } while (0)
 
-#define __spi_write_reg(reg, val) \
-do {\
-	__spi_write_reg1((reg<<2|2), val);\
-	udelay(100); \
-}while(0)
-
-#define __lcd_special_pin_init() \
-do { \
-	__gpio_as_output(SPEN); /* use SPDA */\
-	__gpio_as_output(SPCK); /* use SPCK */\
-	__gpio_as_output(SPDA); /* use SPDA */\
-	__gpio_as_output(LCD_RET);\
+#define __lcd_special_pin_init()		\
+do {						\
+	__gpio_as_output(SPEN); /* use SPDA */	\
+	__gpio_as_output(SPCK); /* use SPCK */	\
+	__gpio_as_output(SPDA); /* use SPDA */	\
 } while (0)
 
-#define __lcd_special_on() \
-do { \
-	__spi_write_reg1(0x05, 0x1e); \
-	udelay(50);\
-	__spi_write_reg1(0x05, 0x5d); \
-	__spi_write_reg1(0x0B, 0x81); \
-	__spi_write_reg1(0x01, 0x95); \
-	__spi_write_reg1(0x00, 0x07); \
-	__spi_write_reg1(0x06, 0x15); \
-	__spi_write_reg1(0x07, 0x8d); \
-	__spi_write_reg1(0x04, 0x0f); \
-	__spi_write_reg1(0x0d, 0x3d); \
-	__spi_write_reg1(0x10, 0x42); \
-	__spi_write_reg1(0x11, 0x3a); \
-	__spi_write_reg1(0x05, 0x5f); \
+#define __lcd_special_on()			\
+do {						\
+	__spi_write_reg1(0x05, 0x1e);		\
+	udelay(50);				\
+	__spi_write_reg1(0x05, 0x5d);		\
+	__spi_write_reg1(0x0B, 0x81);		\
+	__spi_write_reg1(0x01, 0x95);		\
+	__spi_write_reg1(0x00, 0x07);		\
+	__spi_write_reg1(0x06, 0x15);		\
+	__spi_write_reg1(0x07, 0x8d);		\
+	__spi_write_reg1(0x04, 0x0f);		\
+	__spi_write_reg1(0x0d, 0x3d);		\
+	__spi_write_reg1(0x10, 0x42);		\
+	__spi_write_reg1(0x11, 0x3a);		\
+	__spi_write_reg1(0x05, 0x5f);		\
 } while (0)
 
-#define __lcd_special_off() \
-do {					\
-	__spi_write_reg1(0x05, 0x5e);	\
+#define __lcd_special_off()			\
+do {						\
+	__spi_write_reg1(0x05, 0x5e);		\
 } while (0)
 
-#define __lcd_set_backlight_level(n)\
-do { \
-	__gpio_as_output(LCD_RET); \
-	__gpio_set_pin(LCD_RET); \
+#define __lcd_set_backlight_level(n)		\
+do {						\
+	__gpio_set_pin(LCD_RET);		\
 } while (0)
 
 #if defined(CONFIG_SAKC)
-#define __lcd_close_backlight() \
-do { \
-	__gpio_as_output(GPIO_PWM); \
-	__gpio_clear_pin(GPIO_PWM); \
+#define __lcd_close_backlight()			\
+do {						\
+	__gpio_as_output(GPIO_PWM);		\
+	__gpio_clear_pin(GPIO_PWM);		\
 } while (0)
 #endif
 
+#define __lcd_display_pin_init()		\
+do {						\
+	__cpm_start_tcu();			\
+	__lcd_special_pin_init();		\
+} while (0)
+
 #if defined(CONFIG_SAKC)
-#define __lcd_display_pin_init() \
-do { \
-	__cpm_start_tcu(); \
-	__lcd_special_pin_init(); \
+#define __lcd_display_on()			\
+do {						\
+	__lcd_special_on();			\
 } while (0)
 
-#define __lcd_display_on() \
-do { \
-	__lcd_special_on(); \
-} while (0)
-
-#define __lcd_display_off() \
-do { \
-	__lcd_special_off(); \
+#define __lcd_display_off()			\
+do {						\
+	__lcd_special_off();			\
 } while (0)
 #else
-#define __lcd_display_pin_init() \
-do { \
-	__cpm_start_tcu(); \
-	__lcd_special_pin_init(); \
+#define __lcd_display_on()			\
+do {						\
+	__gpio_set_pin(GPIO_DISP_OFF_N);	\
+	__lcd_special_on();			\
 } while (0)
 
-#define __lcd_display_on() \
-do { \
-	__gpio_set_pin(GPIO_DISP_OFF_N); \
-	__lcd_special_on(); \
-} while (0)
-
-#define __lcd_display_off() \
-do { \
-	__lcd_special_off(); \
-	__gpio_clear_pin(GPIO_DISP_OFF_N); \
+#define __lcd_display_off()			\
+do {						\
+	__lcd_special_off();			\
+	__gpio_clear_pin(GPIO_DISP_OFF_N);	\
 } while (0)
 #endif
 

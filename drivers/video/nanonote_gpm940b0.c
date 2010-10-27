@@ -1,7 +1,7 @@
 /*
  * JzRISC lcd controller
  *
- * xiangfu liu <xiangfu.z@gmail.com>
+ * Xiangfu Liu <xiangfu@sharism.cc>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,7 +56,6 @@ vidinfo_t panel_info = {
 };
 
 int lcd_line_length;
-
 int lcd_color_fg;
 int lcd_color_bg;
 /*
@@ -74,8 +73,8 @@ void lcd_disable (void);
 
 static int  jz_lcd_init_mem(void *lcdbase, vidinfo_t *vid);
 static void jz_lcd_desc_init(vidinfo_t *vid);
-static int  jz_lcd_hw_init( vidinfo_t *vid );
-extern int flush_cache_all(void);
+static int  jz_lcd_hw_init(vidinfo_t *vid);
+extern int  flush_cache_all(void);
 
 void lcd_ctrl_init (void *lcdbase)
 {
@@ -91,7 +90,6 @@ void lcd_ctrl_init (void *lcdbase)
 /*
  * Before enabled lcd controller, lcd registers should be configured correctly.
  */
-
 void lcd_enable (void)
 {
 	REG_LCD_CTRL &= ~(1<<4); /* LCDCTRL.DIS */
