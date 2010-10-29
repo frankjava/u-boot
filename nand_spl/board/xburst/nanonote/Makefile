@@ -61,8 +61,6 @@ $(nandobj)u-boot-spl:	$(OBJS)
 		-o $(nandobj)u-boot-spl
 
 # create symbolic links for common files
-
-# from cpu directory
 $(obj)start.S:
 	@rm -f $(obj)start.S
 	ln -s $(SRCTREE)/arch/mips/cpu/xburst/start_spl.S $(obj)start.S
@@ -83,12 +81,10 @@ $(obj)jz_serial.c:
 	@rm -f $(obj)jz_serial.c
 	ln -s $(SRCTREE)/arch/mips/cpu/xburst/jz_serial.c $(obj)jz_serial.c
 
-# from nand_spl directory
 $(obj)nand_boot_jz4740.c:
 	@rm -f $(obj)nand_boot_jz4740.c
 	ln -s $(SRCTREE)/nand_spl/nand_boot_jz4740.c $(obj)nand_boot_jz4740.c
-
-#########################################################################
+	ln -s $(SRCTREE)/drivers/video/nanonote_gpm940b0.h $(obj)nanonote_gpm940b0.h
 
 $(obj)%.o:	$(obj)%.S
 	$(CC) $(AFLAGS) -c -o $@ $<
@@ -96,9 +92,6 @@ $(obj)%.o:	$(obj)%.S
 $(obj)%.o:	$(obj)%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# defines $(obj).depend target
 include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend
-
-#########################################################################

@@ -22,8 +22,6 @@
 #ifndef __QI_LB60_GPM940B0_H__
 #define __QI_LB60_GPM940B0_H__
 
-#include <asm/io.h>
-
 struct lcd_desc{
 	unsigned int next_desc; /* LCDDAx */
 	unsigned int databuf;   /* LCDSAx */
@@ -98,7 +96,6 @@ do {						\
 	__gpio_set_pin(SPCK);			\
 	__gpio_clear_pin(SPDA);			\
 	__gpio_clear_pin(SPEN);			\
-	udelay(25);				\
 	value=((a<<8)|(b&0xFF));		\
 	for(no=0;no<16;no++)			\
 	{					\
@@ -107,13 +104,10 @@ do {						\
 			__gpio_set_pin(SPDA);	\
 		else				\
 			__gpio_clear_pin(SPDA);	\
-		udelay(25);			\
 		__gpio_set_pin(SPCK);		\
 		value=(value<<1);		\
-		udelay(25);			\
 	}					\
 	__gpio_set_pin(SPEN);			\
-	udelay(100);				\
 } while (0)
 
 #define __lcd_display_pin_init()		\
@@ -127,10 +121,10 @@ do {						\
 #define __lcd_display_on()			\
 do {						\
 	__spi_write_reg1(0x05, 0x1e);		\
-	__spi_write_reg1(0x05, 0xc6);		\
+	__spi_write_reg1(0x05, 0x5e);		\
 	__spi_write_reg1(0x07, 0x8d);		\
 	__spi_write_reg1(0x13, 0x01);		\
-	__spi_write_reg1(0x05, 0xc7);		\
+	__spi_write_reg1(0x05, 0x5f);		\
 } while (0)
 
 #define __lcd_display_off()			\

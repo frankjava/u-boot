@@ -78,13 +78,9 @@ extern int  flush_cache_all(void);
 
 void lcd_ctrl_init (void *lcdbase)
 {
-	__lcd_display_pin_init();
-
 	jz_lcd_init_mem(lcdbase, &panel_info);
 	jz_lcd_desc_init(&panel_info);
 	jz_lcd_hw_init(&panel_info);
-
-	__lcd_display_on() ;
 }
 
 /*
