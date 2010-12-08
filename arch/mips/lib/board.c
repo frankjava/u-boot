@@ -136,10 +136,18 @@ static int init_baudrate (void)
  * argument, and returns an integer return code, where 0 means
  * "continue" and != 0 means "fatal error, hang the system".
  */
+
+#if defined(CONFIG_JZSOC)
+extern int jzsoc_init(void);
+#endif
+
 typedef int (init_fnc_t) (void);
 
 init_fnc_t *init_sequence[] = {
 	board_early_init_f,
+#if defined(CONFIG_JZSOC)
+	jzsoc_init,		/* init gpio/clocks/dram etc. */
+#endif
 	timer_init,
 	env_init,		/* initialize environment */
 #ifdef CONFIG_INCA_IP

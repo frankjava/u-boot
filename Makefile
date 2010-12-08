@@ -1093,6 +1093,19 @@ smdk6400_config	:	unconfig
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
 #========================================================================
+# MIPS
+#========================================================================
+#########################################################################
+## MIPS32 XBurst jz4740
+#########################################################################
+qi_lb60_config  : unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@echo "Compile NAND boot image for QI LB60"
+	@$(MKCONFIG) -a qi_lb60 mips xburst nanonote xburst
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
+#========================================================================
 # Nios
 #========================================================================
 
