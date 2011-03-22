@@ -40,7 +40,7 @@
 	:								\
 	: "i" (op), "R" (*(unsigned char *)(addr)))
 
-#if !defined (CONFIG_NAND_SPL) && !defined (CONFIG_MSC_SPL) 
+#if !defined (CONFIG_NAND_SPL) && !defined (CONFIG_MSC_SPL)
 
 void __attribute__((weak)) _machine_restart(void)
 {
@@ -79,7 +79,7 @@ void flush_cache(ulong start_addr, ulong size)
 	unsigned long addr = start_addr & ~(lsize - 1);
 	unsigned long aend = (start_addr + size - 1) & ~(lsize - 1);
 
-	for (;addr <= aend;addr += lsize) {
+	for (;addr <= aend; addr += lsize) {
 		cache_op(Hit_Writeback_Inv_D, addr);
 		cache_op(Hit_Invalidate_I, addr);
 	}
@@ -91,7 +91,7 @@ void flush_dcache_range(ulong start_addr, ulong stop)
 	unsigned long addr = start_addr & ~(lsize - 1);
 	unsigned long aend = (stop - 1) & ~(lsize - 1);
 
-	for (;addr <= aend;addr += lsize)
+	for (;addr <= aend; addr += lsize)
 		cache_op(Hit_Writeback_Inv_D, addr);
 }
 
@@ -101,7 +101,7 @@ void invalidate_dcache_range(ulong start_addr, ulong stop)
 	unsigned long addr = start_addr & ~(lsize - 1);
 	unsigned long aend = (stop - 1) & ~(lsize - 1);
 
-	for (;addr <= aend;addr += lsize)
+	for (;addr <= aend; addr += lsize)
 		cache_op(Hit_Invalidate_D, addr);
 }
 
@@ -145,7 +145,7 @@ void flush_dcache_all(void)
 {
 	u32 addr;
 
-	for (addr = KSEG0; addr < KSEG0 + CONFIG_SYS_DCACHE_SIZE; 
+	for (addr = KSEG0; addr < KSEG0 + CONFIG_SYS_DCACHE_SIZE;
 	     addr += CONFIG_SYS_CACHELINE_SIZE) {
 		cache_op(Index_Writeback_Inv_D, addr);
 	}

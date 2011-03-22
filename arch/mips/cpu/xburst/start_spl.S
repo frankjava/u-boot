@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-	
+
 #include <config.h>
 #include <version.h>
 #include <asm/regdef.h>
@@ -32,25 +32,27 @@
 #include <asm/jz4740.h>
 
 	.set noreorder
-	
+
 	.globl _start
 	.text
 _start:
 	.word JZ4740_NANDBOOT_CFG /* fetched during NAND Boot */
-reset:	
-	/* 
+reset:
+	/*
 	 * STATUS register
 	 * CU0=UM=EXL=IE=0, BEV=ERL=1, IP2~7=1
 	 */
 	li	t0, 0x0040FC04
 	mtc0	t0, CP0_STATUS
-	/* CAUSE register
-	 * IV=1, use the specical interrupt vector (0x200) */
+	/*
+	 * CAUSE register
+	 * IV=1, use the specical interrupt vector (0x200)
+	 */
 	li	t1, 0x00800000
 	mtc0	t1, CP0_CAUSE
-	
+
 	bal     1f
-	nop
+	 nop
 	.word   _GLOBAL_OFFSET_TABLE_
 1:
 	move    gp, ra
@@ -60,4 +62,4 @@ reset:
 	la	sp, 0x80004000
 	la	t9, nand_boot
 	j	t9
-	nop
+	 nop

@@ -27,18 +27,19 @@ void enable_interrupts(void)
 {
 }
 
-int disable_interrupts(void) 
+int disable_interrupts(void)
 {
 	return 0;
 }
 
-/* PLL output clock = EXTAL * NF / (NR * NO)
+/*
+ * PLL output clock = EXTAL * NF / (NR * NO)
  * NF = FD + 2, NR = RD + 2
  * NO = 1 (if OD = 0), NO = 2 (if OD = 1 or 2), NO = 4 (if OD = 3)
  */
 void pll_init(void)
 {
-	struct jz4740_cpm * cpm = (struct jz4740_cpm *) JZ4740_CPM_BASE;
+	struct jz4740_cpm *cpm = (struct jz4740_cpm *) JZ4740_CPM_BASE;
 
 	register unsigned int cfcr, plcr1;
 	int n2FR[33] = {
@@ -56,7 +57,7 @@ void pll_init(void)
 		(n2FR[div[3]] << CPM_CPCCR_MDIV_BIT) |
 		(n2FR[div[4]] << CPM_CPCCR_LDIV_BIT);
 
-	pllout2 = (cfcr & CPM_CPCCR_PCS) ? 
+	pllout2 = (cfcr & CPM_CPCCR_PCS) ?
 		CONFIG_SYS_CPU_SPEED : (CONFIG_SYS_CPU_SPEED / 2);
 
 	/* Init USB Host clock, pllout2 must be n*48MHz */
@@ -65,9 +66,9 @@ void pll_init(void)
 	nf = CONFIG_SYS_CPU_SPEED * 2 / CONFIG_SYS_EXTAL;
 	plcr1 = ((nf - 2) << CPM_CPPCR_PLLM_BIT) | /* FD */
 		(0 << CPM_CPPCR_PLLN_BIT) |	/* RD=0, NR=2 */
-		(0 << CPM_CPPCR_PLLOD_BIT) |    /* OD=0, NO=1 */
-		(0x20 << CPM_CPPCR_PLLST_BIT) | /* PLL stable time */
-		CPM_CPPCR_PLLEN;                /* enable PLL */
+		(0 << CPM_CPPCR_PLLOD_BIT) |	/* OD=0, NO=1 */
+		(0x20 << CPM_CPPCR_PLLST_BIT) |	/* PLL stable time */
+		CPM_CPPCR_PLLEN;		/* enable PLL */
 
 	/* init PLL */
 	writel(cfcr, &cpm->cpccr);
@@ -77,7 +78,7 @@ void pll_init(void)
 
 void sdram_init(void)
 {
-	struct jz4740_emc * emc = (struct jz4740_emc *) JZ4740_EMC_BASE;
+	struct jz4740_emc *emc = (struct jz4740_emc *) JZ4740_EMC_BASE;
 
 	register unsigned int dmcr0, dmcr, sdmode, tmp, cpu_clk, mem_clk, ns;
 
@@ -94,16 +95,15 @@ void sdram_init(void)
 	int div[] = {1, 2, 3, 4, 6, 8, 12, 16, 24, 32};
 
 	cpu_clk = CONFIG_SYS_CPU_SPEED;
-	mem_clk = cpu_clk * 
-		div[__cpm_get_cdiv()] / div[__cpm_get_mdiv()];
+	mem_clk = cpu_clk * div[__cpm_get_cdiv()] / div[__cpm_get_mdiv()];
 
 	writel(0, &emc->bcr);	/* Disable bus release */
 	writew(0, &emc->rtcsr);	/* Disable clock for counting */
 
 	/* Fault DMCR value for mode register setting*/
-#define SDRAM_ROW0    11
-#define SDRAM_COL0     8
-#define SDRAM_BANK40   0
+#define SDRAM_ROW0	11
+#define SDRAM_COL0	8
+#define SDRAM_BANK40	0
 
 	dmcr0 = ((SDRAM_ROW0 - 11) << EMC_DMCR_RA_BIT) |
 		((SDRAM_COL0 - 8) << EMC_DMCR_CA_BIT) |
@@ -120,41 +120,40 @@ void sdram_init(void)
 
 	/* SDRAM timimg */
 	ns = 1000000000 / mem_clk;
-	tmp = SDRAM_TRAS/ns;
-	if (tmp < 4) 
+	tmp = SDRAM_TRAS / ns;
+	if (tmp < 4)
 		tmp = 4;
-	if (tmp > 11) 
+	if (tmp > 11)
 		tmp = 11;
 	dmcr |= ((tmp-4) << EMC_DMCR_TRAS_BIT);
-	tmp = SDRAM_RCD/ns;
+	tmp = SDRAM_RCD / ns;
 
-	if (tmp > 3) 
+	if (tmp > 3)
 		tmp = 3;
 	dmcr |= (tmp << EMC_DMCR_RCD_BIT);
-	tmp = SDRAM_TPC/ns;
+	tmp = SDRAM_TPC / ns;
 
-	if (tmp > 7) 
+	if (tmp > 7)
 		tmp = 7;
 	dmcr |= (tmp << EMC_DMCR_TPC_BIT);
-	tmp = SDRAM_TRWL/ns;
+	tmp = SDRAM_TRWL / ns;
 
-	if (tmp > 3) 
+	if (tmp > 3)
 		tmp = 3;
 	dmcr |= (tmp << EMC_DMCR_TRWL_BIT);
-	tmp = (SDRAM_TRAS + SDRAM_TPC)/ns;
+	tmp = (SDRAM_TRAS + SDRAM_TPC) / ns;
 
-	if (tmp > 14) 
+	if (tmp > 14)
 		tmp = 14;
 	dmcr |= (((tmp + 1) >> 1) << EMC_DMCR_TRC_BIT);
 
 	/* SDRAM mode value */
-	sdmode = EMC_SDMR_BT_SEQ | 
+	sdmode = EMC_SDMR_BT_SEQ |
 		 EMC_SDMR_OM_NORMAL |
-		 EMC_SDMR_BL_4 | 
+		 EMC_SDMR_BL_4 |
 		 cas_latency_sdmr[((SDRAM_CASL == 3) ? 1 : 0)];
 
-	/* Stage 1. Precharge all banks by writing
-	 * SDMR with DMCR.MRSET=0 */
+	/* Stage 1. Precharge all banks by writing SDMR with DMCR.MRSET=0 */
 	writel(dmcr, &emc->dmcr);
 	writeb(0, JZ4740_EMC_SDMR0 | sdmode);
 
@@ -167,8 +166,8 @@ void sdram_init(void)
 	writel(dmcr | EMC_DMCR_RFSH, &emc->dmcr);
 
 	tmp = SDRAM_TREF / ns;
-	tmp = tmp/64 + 1;
-	if (tmp > 0xff) 
+	tmp = tmp / 64 + 1;
+	if (tmp > 0xff)
 		tmp = 0xff;
 	writew(tmp, &emc->rtcor);
 	writew(0, &emc->rtcnt);
@@ -180,7 +179,7 @@ void sdram_init(void)
 	while (tmp--)
 		;
 
- 	/* Stage 3. Mode Register Set */
+	/* Stage 3. Mode Register Set */
 	writel(dmcr0 | EMC_DMCR_RFSH | EMC_DMCR_MRSET, &emc->dmcr);
 	writeb(0, JZ4740_EMC_SDMR0 | sdmode);
 
@@ -231,8 +230,7 @@ static void rtc_init(void)
 /* U-Boot common routines */
 phys_size_t initdram(int board_type)
 {
-	struct jz4740_emc * emc = (struct jz4740_emc *) JZ4740_EMC_BASE;
-
+	struct jz4740_emc *emc = (struct jz4740_emc *) JZ4740_EMC_BASE;
 	u32 dmcr;
 	u32 rows, cols, dw, banks;
 	ulong size;

@@ -38,16 +38,16 @@ static struct nand_ecclayout qi_lb60_ecclayout_2gb = {
 	.eccbytes = 72,
 	.eccpos = {
 		12, 13, 14, 15, 16, 17, 18, 19,
-		20, 21, 22, 23, 24, 25, 26, 27, 
+		20, 21, 22, 23, 24, 25, 26, 27,
 		28, 29, 30, 31, 32, 33, 34, 35,
 		36, 37, 38, 39, 40, 41, 42, 43,
-		44, 45, 46, 47, 48, 49, 50, 51, 
-		52, 53, 54, 55, 56, 57, 58, 59, 
-		60, 61, 62, 63, 64, 65, 66, 67, 
-		68, 69, 70, 71, 72, 73, 74, 75, 
+		44, 45, 46, 47, 48, 49, 50, 51,
+		52, 53, 54, 55, 56, 57, 58, 59,
+		60, 61, 62, 63, 64, 65, 66, 67,
+		68, 69, 70, 71, 72, 73, 74, 75,
 		76, 77, 78, 79, 80, 81, 82, 83},
 	.oobfree = {
- 		{.offset = 2,
+		{.offset = 2,
 		 .length = 10},
 		{.offset = 84,
 		 .length = 44}}
@@ -103,7 +103,7 @@ static void jz_nand_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 			this->IO_ADDR_W = JZ_NAND_DATA_ADDR;
 
 		if (ctrl & NAND_NCE)
-			writel(readl(&emc->nfcsr) | EMC_NFCSR_NFCE1, &emc->nfcsr); 
+			writel(readl(&emc->nfcsr) | EMC_NFCSR_NFCE1, &emc->nfcsr);
 		else
 			writel(readl(&emc->nfcsr) & ~EMC_NFCSR_NFCE1, &emc->nfcsr);
 	}
@@ -200,7 +200,7 @@ static int jz_nand_rs_correct_data(struct mtd_info *mtd, u_char *dat,
 	volatile u8 *paraddr = (volatile u8 *) &emc->nfpar[0];
 
 	/* Set PAR values */
-	static uint8_t all_ff_ecc[] = 
+	static uint8_t all_ff_ecc[] =
 		{0xcd, 0x9d, 0x90, 0x58, 0xf4, 0x8b, 0xff, 0xb7, 0x6f};
 
 	if (read_ecc[0] == 0xff && read_ecc[1] == 0xff &&
@@ -244,19 +244,19 @@ static int jz_nand_rs_correct_data(struct mtd_info *mtd, u_char *dat,
 	case 4:
 		index = (readl(&emc->nferr[3]) & EMC_NFERR_INDEX_MASK) >>
 			EMC_NFERR_INDEX_BIT;
-		mask = (readl(&emc->nferr[3]) & EMC_NFERR_MASK_MASK) >> 
+		mask = (readl(&emc->nferr[3]) & EMC_NFERR_MASK_MASK) >>
 			EMC_NFERR_MASK_BIT;
 		jz_rs_correct(dat, index, mask);
 	case 3:
 		index = (readl(&emc->nferr[2]) & EMC_NFERR_INDEX_MASK) >>
 			EMC_NFERR_INDEX_BIT;
-		mask = (readl(&emc->nferr[2]) & EMC_NFERR_MASK_MASK) >> 
+		mask = (readl(&emc->nferr[2]) & EMC_NFERR_MASK_MASK) >>
 			EMC_NFERR_MASK_BIT;
 		jz_rs_correct(dat, index, mask);
 	case 2:
-		index = (readl(&emc->nferr[1]) & EMC_NFERR_INDEX_MASK) >> 
+		index = (readl(&emc->nferr[1]) & EMC_NFERR_INDEX_MASK) >>
 			EMC_NFERR_INDEX_BIT;
-		mask = (readl(&emc->nferr[1]) & EMC_NFERR_MASK_MASK) >> 
+		mask = (readl(&emc->nferr[1]) & EMC_NFERR_MASK_MASK) >>
 			EMC_NFERR_MASK_BIT;
 		jz_rs_correct(dat, index, mask);
 	case 1:
@@ -302,9 +302,9 @@ extern int serial_init(void);
 #endif
 	uint32_t reg;
 
-	reg = readl(&emc->nfcsr); 
+	reg = readl(&emc->nfcsr);
 	reg |= EMC_NFCSR_NFE1;	/* EMC setup, Set NFE bit */
-	writel(reg, &emc->nfcsr); 
+	writel(reg, &emc->nfcsr);
 
 	writel(EMC_SMCR1_OPT_NAND, &emc->smcr[1]);
 

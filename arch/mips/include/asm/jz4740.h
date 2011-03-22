@@ -33,7 +33,7 @@
 #define JZ4740_IRQ_TCU2		21
 #define JZ4740_IRQ_TCU1		22
 #define JZ4740_IRQ_TCU0		23
-#define JZ4740_IRQ_UDC 		24
+#define JZ4740_IRQ_UDC		24
 #define JZ4740_IRQ_GPIO3	25
 #define JZ4740_IRQ_GPIO2	26
 #define JZ4740_IRQ_GPIO1	27
@@ -68,7 +68,7 @@
 #define	JZ4740_ETH_BASE		0x13100000
 
 /* 8bit Mode Register of SDRAM bank 0 */
-#define JZ4740_EMC_SDMR0	(JZ4740_EMC_BASE + 0xa000) 
+#define JZ4740_EMC_SDMR0	(JZ4740_EMC_BASE + 0xa000)
 
 /* GPIO (General-Purpose I/O Ports) */
 /*  = 0,1,2,3 */
@@ -342,8 +342,8 @@
 #define CPM_CPPCR_PLLST_MASK	(0xff << CPM_CPPCR_PLLST_BIT)
 
 /* Low Power Control Register */
-#define CPM_LCR_DOZE_DUTY_BIT 	3
-#define CPM_LCR_DOZE_DUTY_MASK 	(0x1f << CPM_LCR_DOZE_DUTY_BIT)
+#define CPM_LCR_DOZE_DUTY_BIT	3
+#define CPM_LCR_DOZE_DUTY_MASK	(0x1f << CPM_LCR_DOZE_DUTY_BIT)
 #define CPM_LCR_DOZE_ON		(1 << 2)
 #define CPM_LCR_LPM_BIT		0
 #define CPM_LCR_LPM_MASK	(0x3 << CPM_LCR_LPM_BIT)
@@ -1005,7 +1005,7 @@ struct jz4740_wdt {
 };
 
 struct jz4740_uart {
-	uint8_t rbr_thr_dllr;	
+	uint8_t rbr_thr_dllr;
 		/* 0x00 R  8b receive buffer reg */
 		/* 0x00 W  8b transmit hold reg */
 		/* 0x00 RW 8b divisor latch low reg */
@@ -1057,7 +1057,7 @@ struct jz4740_msc {
 struct jz4740_emc {
 	uint32_t bcr; /* 0x00 BCR */
 	uint32_t pad00[3];
-	uint32_t smcr[5]; 
+	uint32_t smcr[5];
 		/* x10 Static Memory Control Register 0 */
 		/* x14 Static Memory Control Register 1 */
 		/* x18 Static Memory Control Register 2 */

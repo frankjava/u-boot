@@ -157,7 +157,7 @@ xfer_d2i:
 
 icache_return:
 	/*
-	 * User code can return to here after executing itself in 
+	 * User code can return to here after executing itself in
 	 * icache, by jumping to $31.
 	 */
 	b	usb_boot_return
@@ -192,7 +192,7 @@ usb_command_loop:
 	beqz	$9, check_intr_ep0in
 	nop
 
- 	/* 1. Handle USB reset interrupt */
+	/* 1. Handle USB reset interrupt */
 handle_reset_intr:
 	lbu	$9, 0x01($27)		/* read POWER */
 	andi	$9, 0x10		/* test HS_MODE */

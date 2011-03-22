@@ -23,7 +23,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/jz4740.h>
- 
+
 /*
  * serial_init - initialize a channel
  *
@@ -35,7 +35,7 @@
  */
 struct jz4740_uart *uart = (struct jz4740_uart *) CONFIG_SYS_UART_BASE;
 
-int serial_init (void)
+int serial_init(void)
 {
 #if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 
@@ -48,21 +48,23 @@ int serial_init (void)
 	/* Set both receiver and transmitter in UART mode (not SIR) */
 	writeb(~(SIRCR_RSIRE | SIRCR_TSIRE), &uart->isr);
 
-	/* Set databits, stopbits and parity.
-	 * (8-bit data, 1 stopbit, no parity) */
+	/*
+	 * Set databits, stopbits and parity.
+	 * (8-bit data, 1 stopbit, no parity)
+	 */
 	writeb(UART_LCR_WLEN_8 | UART_LCR_STOP_1, &uart->lcr);
 
 	/* Set baud rate */
 	serial_setbrg();
 
 	/* Enable UART unit, enable and clear FIFO */
-	writeb(UART_FCR_UUE | UART_FCR_FE | UART_FCR_TFLS | UART_FCR_RFLS, 
+	writeb(UART_FCR_UUE | UART_FCR_FE | UART_FCR_TFLS | UART_FCR_RFLS,
 	       &uart->iir_fcr);
 #endif
 	return 0;
 }
 
-void serial_setbrg (void)
+void serial_setbrg(void)
 {
 	u32 baud_div, tmp;
 
@@ -79,18 +81,18 @@ void serial_setbrg (void)
 	writeb(tmp, &uart->lcr);
 }
 
-int serial_tstc (void)
+int serial_tstc(void)
 {
 	if (readb(&uart->lsr) & UART_LSR_DR)
-		return (1);
+		return 1;
 
 	return 0;
 }
 
-void serial_putc (const char c)
+void serial_putc(const char c)
 {
-	if (c == '\n') 
-		serial_putc ('\r');
+	if (c == '\n')
+		serial_putc('\r');
 
 	/* Wait for fifo to shift out some bytes */
 	while (!((readb(&uart->lsr) & (UART_LSR_TDRQ | UART_LSR_TEMT)) == 0x60))
@@ -99,7 +101,7 @@ void serial_putc (const char c)
 	writeb((u8)c, &uart->rbr_thr_dllr);
 }
 
-int serial_getc (void)
+int serial_getc(void)
 {
 	while (!serial_tstc())
 		;
@@ -107,8 +109,8 @@ int serial_getc (void)
 	return readb(&uart->rbr_thr_dllr);
 }
 
-void serial_puts (const char *s)
+void serial_puts(const char *s)
 {
 	while (*s)
-		serial_putc (*s++);
+		serial_putc(*s++);
 }

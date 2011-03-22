@@ -47,7 +47,7 @@ all:	$(obj).depend $(ALL)
 #from NAND flash using hardware Reed-Solomon ECC. If no ECC error is detected or ECC error is
 #correctable, the boot program then branches to internal SRAM at 4 bytes offset. If it detects an
 #uncorrectable ECC error, it will continue to read the backup area of data from NAND flash using
-#hardware Reed-Solomon ECC. 
+#hardware Reed-Solomon ECC.
 $(nandobj)u-boot-spl-16k.bin: $(nandobj)u-boot-spl.bin
 	dd bs=1024 count=8 if=/dev/zero of=$(nandobj)junk1
 	cat $< $(nandobj)junk1 > $(nandobj)junk2

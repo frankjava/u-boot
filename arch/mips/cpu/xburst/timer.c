@@ -72,7 +72,7 @@ void set_timer(ulong t)
 	gd->tbl = t;
 }
 
-void __udelay (unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	ulong tmo,tmp;
 
@@ -121,7 +121,7 @@ ulong get_timer_masked (void)
 	return gd->tbl;
 }
 
-void udelay_masked (unsigned long usec)
+void udelay_masked(unsigned long usec)
 {
 	ulong tmo;
 	ulong endtime;

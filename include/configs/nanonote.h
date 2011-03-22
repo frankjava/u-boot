@@ -149,7 +149,7 @@
  *
  */
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x80100000	/* Load NUB to this addr */
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST 
+#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
 /* Start NUB from this addr*/
 
 /*
