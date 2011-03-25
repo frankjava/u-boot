@@ -200,7 +200,7 @@ static int jz_nand_rs_correct_data(struct mtd_info *mtd, u_char *dat,
 	volatile u8 *paraddr = (volatile u8 *) &emc->nfpar[0];
 
 	/* Set PAR values */
-	static uint8_t all_ff_ecc[] =
+	const uint8_t all_ff_ecc[] =
 		{0xcd, 0x9d, 0x90, 0x58, 0xf4, 0x8b, 0xff, 0xb7, 0x6f};
 
 	if (read_ecc[0] == 0xff && read_ecc[1] == 0xff &&
@@ -237,7 +237,7 @@ static int jz_nand_rs_correct_data(struct mtd_info *mtd, u_char *dat,
 	errcnt = (status & EMC_NFINTS_ERRCNT_MASK) >> EMC_NFINTS_ERRCNT_BIT;
 
 #ifdef CONFIG_NAND_SPL
-       return 0;
+//	return 0;
 #endif
 
 	switch (errcnt) {
@@ -287,19 +287,8 @@ extern int serial_init(void);
 	pll_init();
 	serial_init();
 	sdram_init();
-
-#if defined(CONFIG_QI_LB60)
-#define KEY_U_OUT       (32 * 2 + 16)
-#define KEY_U_IN        (32 * 3 + 19)
-	__gpio_as_input(KEY_U_IN);
-	__gpio_enable_pull(KEY_U_IN);
-	__gpio_as_output(KEY_U_OUT);
-	__gpio_clear_pin(KEY_U_OUT);
-
-	if (__gpio_get_pin(KEY_U_IN) == 0)
-		usb_boot();
 #endif
-#endif
+
 	uint32_t reg;
 
 	reg = readl(&emc->nfcsr);

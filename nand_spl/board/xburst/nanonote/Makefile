@@ -28,7 +28,7 @@ LDFLAGS	= -Bstatic -T $(LDSCRIPT) -Ttext $(CONFIG_NAND_SPL_TEXT_BASE)
 AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL -O2
 
-SOBJS	= start.o usbboot.o
+SOBJS	= start.o
 COBJS	= nand_boot.o cpu.o jz4740.o jz_serial.o jz4740_nand.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
@@ -70,10 +70,6 @@ $(nandobj)u-boot-spl:	$(OBJS)
 $(obj)start.S:
 	@rm -f $@
 	ln -s $(SRCTREE)/arch/mips/cpu/xburst/start_spl.S $@
-
-$(obj)usbboot.S:
-	@rm -f $@
-	ln -s $(SRCTREE)/arch/mips/cpu/xburst/usbboot.S $@
 
 $(obj)cpu.c:
 	@rm -f $@
