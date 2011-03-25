@@ -15,10 +15,6 @@
 #include <asm/io.h>
 #include <asm/jz4740.h>
 
-#ifdef CONFIG_NAND_SPL
-#define printf(arg...) do {} while (0)
-#endif
-
 #define JZ_NAND_DATA_ADDR ((void __iomem *)0xB8000000)
 #define JZ_NAND_CMD_ADDR (JZ_NAND_DATA_ADDR + 0x8000)
 #define JZ_NAND_ADDR_ADDR (JZ_NAND_DATA_ADDR + 0x10000)
@@ -52,41 +48,6 @@ static struct nand_ecclayout qi_lb60_ecclayout_2gb = {
 		{.offset = 84,
 		 .length = 44}}
 };
-
-#ifdef CONFIG_NAND_SPL
-#if (JZ4740_NANDBOOT_CFG == JZ4740_NANDBOOT_B8R3)
-	#define NAND_BUS_WIDTH 8
-	#define NAND_ROW_CYCLE 3
-#elif (JZ4740_NANDBOOT_CFG == JZ4740_NANDBOOT_B8R2)
-	#define NAND_BUS_WIDTH 8
-	#define NAND_ROW_CYCLE 2
-#elif (JZ4740_NANDBOOT_CFG == JZ4740_NANDBOOT_B16R3)
-	#define NAND_BUS_WIDTH 16
-	#define NAND_ROW_CYCLE 3
-#elif (JZ4740_NANDBOOT_CFG == JZ4740_NANDBOOT_B16R2)
-	#define NAND_BUS_WIDTH 16
-	#define NAND_ROW_CYCLE 2
-#endif
-
-static void nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
-{
-	int i;
-	struct nand_chip *this = mtd->priv;
-#if NAND_BUS_WIDTH == 16
-	for (i = 0; i < len; i += 2)
-		buf[i] = readw(this->IO_ADDR_R);
-#elif NAND_BUS_WIDTH == 8
-	for (i = 0; i < len; i++)
-		buf[i] = readb(this->IO_ADDR_R);
-#endif
-}
-
-static u_char nand_read_byte(struct mtd_info *mtd)
-{
-	struct nand_chip *this = mtd->priv;
-	return readb(this->IO_ADDR_R);
-}
-#endif
 
 static int is_reading;
 
@@ -236,10 +197,6 @@ static int jz_nand_rs_correct_data(struct mtd_info *mtd, u_char *dat,
 
 	errcnt = (status & EMC_NFINTS_ERRCNT_MASK) >> EMC_NFINTS_ERRCNT_BIT;
 
-#ifdef CONFIG_NAND_SPL
-//	return 0;
-#endif
-
 	switch (errcnt) {
 	case 4:
 		index = (readl(&emc->nferr[3]) & EMC_NFERR_INDEX_MASK) >>
@@ -277,18 +234,6 @@ static int jz_nand_rs_correct_data(struct mtd_info *mtd, u_char *dat,
  */
 int board_nand_init(struct nand_chip *nand)
 {
-#ifdef CONFIG_NAND_SPL
-extern void pll_init(void);
-extern void sdram_init(void);
-extern int serial_init(void);
-	__gpio_as_sdram_16bit_4720();
-	__gpio_as_uart0();
-
-	pll_init();
-	serial_init();
-	sdram_init();
-#endif
-
 	uint32_t reg;
 
 	reg = readl(&emc->nfcsr);
@@ -301,10 +246,6 @@ extern int serial_init(void);
 	nand->IO_ADDR_W		= JZ_NAND_DATA_ADDR;
 	nand->cmd_ctrl		= jz_nand_cmd_ctrl;
 	nand->dev_ready		= jz_nand_device_ready;
-#ifdef CONFIG_NAND_SPL
-	nand->read_byte		= nand_read_byte;
-	nand->read_buf		= nand_read_buf;
-#endif
 	nand->ecc.hwctl		= jz_nand_hwctl;
 	nand->ecc.correct	= jz_nand_rs_correct_data;
 	nand->ecc.calculate	= jz_nand_rs_calculate_ecc;
