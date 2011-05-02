@@ -15,6 +15,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void gpio_init(void)
 {
+	unsigned int i;
+
 	/* Initialize NAND Flash Pins */
 	__gpio_as_nand();
 
@@ -28,7 +30,6 @@ static void gpio_init(void)
 	__gpio_as_msc();
 
 	/* Initialize Other pins */
-	unsigned int i;
 	for (i = 0; i < 7; i++){
 		__gpio_as_input(GPIO_KEYIN_BASE + i);
 		__gpio_enable_pull(GPIO_KEYIN_BASE + i);
@@ -67,12 +68,18 @@ static void gpio_init(void)
 
 static void cpm_init(void)
 {
-	struct jz4740_cpm * cpm = (struct jz4740_cpm *) JZ4740_CPM_BASE;
-
+	struct jz4740_cpm *cpm = (struct jz4740_cpm *)JZ4740_CPM_BASE;
 	uint32_t reg = readw(&cpm->clkgr);
-	reg |=	CPM_CLKGR_IPU | CPM_CLKGR_CIM | CPM_CLKGR_I2C |
-		CPM_CLKGR_SSI | CPM_CLKGR_UART1 | CPM_CLKGR_SADC |
-		CPM_CLKGR_UHC | CPM_CLKGR_UDC | CPM_CLKGR_AIC1;
+
+	reg |=	CPM_CLKGR_IPU |
+		CPM_CLKGR_CIM |
+		CPM_CLKGR_I2C |
+		CPM_CLKGR_SSI |
+		CPM_CLKGR_UART1 |
+		CPM_CLKGR_SADC |
+		CPM_CLKGR_UHC |
+		CPM_CLKGR_UDC |
+		CPM_CLKGR_AIC1;
 
 	writew(reg, &cpm->clkgr);
 }
@@ -86,7 +93,7 @@ int board_early_init_f(void)
 }
 
 /* U-Boot common routines */
-int checkboard (void)
+int checkboard(void)
 {
 	printf("Board: Qi LB60 (Ingenic XBurst Jz4740 SoC, Speed %ld MHz)\n",
 	       gd->cpu_clk / 1000000);

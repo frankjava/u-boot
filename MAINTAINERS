@@ -948,7 +948,7 @@ Stefan Roese <sr@denx.de>
 
 Xiangfu Liu <xiangfu@openmobilefree.net>
 
-	qi_lb60		MIPS32 jz4740
+	qi_lb60		MIPS32 (XBurst Jz4740 SoC)
 
 #########################################################################
 # Nios-II Systems:							#

@@ -10,13 +10,10 @@
 #ifndef __CONFIG_QI_LB60_H
 #define __CONFIG_QI_LB60_H
 
-#define CONFIG_MIPS32		1  /* MIPS32 CPU core */
-#define CONFIG_JZSOC		1  /* Jz SoC */
-#define CONFIG_JZ4740		1  /* Jz4740 SoC */
+#define CONFIG_MIPS32		/* MIPS32 CPU core */
+#define CONFIG_JZSOC		/* Jz SoC */
+#define CONFIG_JZ4740		/* Jz4740 SoC */
 #define CONFIG_NAND_JZ4740
-
-#define BOOT_FROM_SDCARD	1
-#define BOOT_WITH_ENABLE_UART	(1 << 1)	/* Vaule for global_data.h gd->boot_option */
 
 #define CONFIG_SYS_CPU_SPEED	336000000	/* CPU clock: 336 MHz */
 #define CONFIG_SYS_EXTAL	12000000	/* EXTAL freq: 12 MHz */
@@ -27,14 +24,14 @@
 #define CONFIG_BAUDRATE		57600
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define CONFIG_SKIP_LOWLEVEL_INIT	1
-#define CONFIG_BOARD_EARLY_INIT_F	1
-#define CONFIG_SYS_NO_FLASH	1
+#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_FLASH_BASE	0 /* init flash_base as 0 */
-#define CONFIG_ENV_OVERWRITE	1
+#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BOOTP_MASK	(CONFIG_BOOTP_DEFAUL)
 #define CONFIG_BOOTDELAY	0
+
 /*
  * Command line configuration.
  */
@@ -129,7 +126,6 @@
 #define CONFIG_SYS_NAND_SELECT_DEVICE	1 /* nand driver supports mutipl.*/
 #define CONFIG_NAND_SPL_TEXT_BASE	0x80000000
 
-
 /*
  * IPL (Initial Program Loader, integrated inside CPU)
  * Will load first 8k from NAND (SPL) into cache and execute it from there.
@@ -146,7 +142,7 @@
  *
  */
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x80100000	/* Load NUB to this addr */
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST 
+#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
 /* Start NUB from this addr*/
 
 /*
@@ -200,7 +196,9 @@
 #define SPDA	(2 * 32 + 22)	/* LCDSCL:Serial command clock input */
 #define SPCK	(2 * 32 + 23)	/* LCDSDA:Serial command data input  */
 
-#define CONFIG_QI_LB60 1
+
+
+#define CONFIG_QI_LB60
 
 #define CONFIG_BOOTARGS	"mem=32M console=tty0 console=ttyS0,57600n8 ubi.mtd=2 rootfstype=ubifs root=ubi0:rootfs rw rootwait"
 #define CONFIG_BOOTCOMMAND     "nand read 0x80600000 0x400000 0x200000;bootm"
