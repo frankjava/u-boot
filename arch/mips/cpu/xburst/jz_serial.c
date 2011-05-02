@@ -33,7 +33,7 @@
  *
  * RETURNS: N/A
  */
-struct jz4740_uart *uart = (struct jz4740_uart *) CONFIG_SYS_UART_BASE;
+struct jz4740_uart *uart = (struct jz4740_uart *)CONFIG_SYS_UART_BASE;
 
 int serial_init(void)
 {

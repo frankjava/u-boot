@@ -35,12 +35,14 @@
 	.text
 _start:
 	/* Initialize GOT pointer */
-	bal     1f
+	bal	1f
 	 nop
 	.word   _GLOBAL_OFFSET_TABLE_
 1:
-	lw      gp, 0(ra)
-	li      sp, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
+	lw	gp, 0(ra)
+
+	/* Set up temporary stack */
+	li	sp, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
 
 	la	t9, board_init_f
 	jr	t9
@@ -59,11 +61,11 @@ _start:
 	.globl	relocate_code
 	.ent	relocate_code
 relocate_code:
-	move	sp, a0		/* Set new stack pointer	*/
+	move	sp, a0			# set new stack pointer
 
 	li	t0, CONFIG_SYS_MONITOR_BASE
 	la	t3, in_ram
-	lw	t2, -12(t3)	/* t2 <-- uboot_end_data	*/
+	lw	t2, -12(t3)		# t2 <-- uboot_end_data
 	move	t1, a2
 
 	/*
@@ -72,8 +74,8 @@ relocate_code:
 	 */
 	move	t6, gp
 	sub	gp, CONFIG_SYS_MONITOR_BASE
-	add	gp, a2			/* gp now adjusted	*/
-	sub	t6, gp, t6		/* t6 <-- relocation offset*/
+	add	gp, a2			# gp now adjusted
+	sub	t6, gp, t6		# t6 <-- relocation offset
 
 	/*
 	 * t0 = source address
@@ -85,10 +87,11 @@ relocate_code:
 	sw	t3, 0(t1)
 	addu	t0, 4
 	ble	t0, t2, 1b
-	 addu	t1, 4			/* delay slot		*/
+	 addu	t1, 4
 
-	/* If caches were enabled, we would have to flush them here.
-	 * flush d-cache */
+	/* If caches were enabled, we would have to flush them here. */
+
+	/* flush d-cache */
 	.set	push
 	li	t0, KSEG0
 	addi	t1, t0, CONFIG_SYS_DCACHE_SIZE
@@ -116,8 +119,7 @@ relocate_code:
 
 	.set	pop
 
-	/* Jump to where we've relocated ourselves.
-	 */
+	/* Jump to where we've relocated ourselves */
 	addi	t0, a2, in_ram - _start
 	jr	t0
 	 nop
@@ -128,8 +130,8 @@ relocate_code:
 
 in_ram:
 	/* Now we want to update GOT  */
-	lw	t3, -4(t0)	/* t3 <-- num_got_entries	*/
-	addi	t4, gp, 8	/* Skipping first two entries.	*/
+	lw	t3, -4(t0)		# t3 <-- num_got_entries
+	addi	t4, gp, 8		# skipping first two entries
 	li	t2, 2
 1:
 	lw	t1, 0(t4)
@@ -139,22 +141,22 @@ in_ram:
 2:
 	addi	t2, 1
 	blt	t2, t3, 1b
-	 addi	t4, 4		/* delay slot			*/
+	 addi	t4, 4
 
-	/* Clear BSS  */
-	lw	t1, -12(t0)	/* t1 <-- uboot_end_data	*/
-	lw	t2, -8(t0)	/* t2 <-- uboot_end		*/
-	add	t1, t6		/* adjust pointers		*/
+	/* Clear BSS */
+	lw	t1, -12(t0)		# t1 <-- uboot_end_data
+	lw	t2, -8(t0)		# t2 <-- uboot_end
+	add	t1, t6			# adjust pointers
 	add	t2, t6
 
 	sub	t1, 4
 1:	addi	t1, 4
 	bltl	t1, t2, 1b
-	 sw	zero, 0(t1)	/* delay slot			*/
+	 sw	zero, 0(t1)
 
-	move	a0, a1
+	move	a0, a1			# a0 <-- gd
 	la	t9, board_init_r
 	jr	t9
-	 move	a1, a2		/* delay slot			*/
+	 move	a1, a2
 
 	.end	relocate_code

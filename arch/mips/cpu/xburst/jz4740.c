@@ -39,7 +39,7 @@ int disable_interrupts(void)
  */
 void pll_init(void)
 {
-	struct jz4740_cpm *cpm = (struct jz4740_cpm *) JZ4740_CPM_BASE;
+	struct jz4740_cpm *cpm = (struct jz4740_cpm *)JZ4740_CPM_BASE;
 
 	register unsigned int cfcr, plcr1;
 	int n2FR[33] = {
@@ -50,7 +50,8 @@ void pll_init(void)
 	int div[5] = {1, 3, 3, 3, 3}; /* divisors of I:S:P:L:M */
 	int nf, pllout2;
 
-	cfcr = CPM_CPCCR_CLKOEN | CPM_CPCCR_PCS |
+	cfcr =	CPM_CPCCR_CLKOEN |
+		CPM_CPCCR_PCS |
 		(n2FR[div[0]] << CPM_CPCCR_CDIV_BIT) |
 		(n2FR[div[1]] << CPM_CPCCR_HDIV_BIT) |
 		(n2FR[div[2]] << CPM_CPCCR_PDIV_BIT) |
@@ -61,7 +62,7 @@ void pll_init(void)
 		CONFIG_SYS_CPU_SPEED : (CONFIG_SYS_CPU_SPEED / 2);
 
 	/* Init USB Host clock, pllout2 must be n*48MHz */
-	writel((pllout2 / 48000000 - 1), &cpm->uhccdr);
+	writel(pllout2 / 48000000 - 1, &cpm->uhccdr);
 
 	nf = CONFIG_SYS_CPU_SPEED * 2 / CONFIG_SYS_EXTAL;
 	plcr1 = ((nf - 2) << CPM_CPPCR_PLLM_BIT) | /* FD */
@@ -75,10 +76,9 @@ void pll_init(void)
 	writel(plcr1, &cpm->cppcr);
 }
 
-
 void sdram_init(void)
 {
-	struct jz4740_emc *emc = (struct jz4740_emc *) JZ4740_EMC_BASE;
+	struct jz4740_emc *emc = (struct jz4740_emc *)JZ4740_EMC_BASE;
 
 	register unsigned int dmcr0, dmcr, sdmode, tmp, cpu_clk, mem_clk, ns;
 
@@ -108,14 +108,16 @@ void sdram_init(void)
 	dmcr0 = ((SDRAM_ROW0 - 11) << EMC_DMCR_RA_BIT) |
 		((SDRAM_COL0 - 8) << EMC_DMCR_CA_BIT) |
 		(SDRAM_BANK40 << EMC_DMCR_BA_BIT) |
-		(SDRAM_BW16 << EMC_DMCR_BW_BIT) | EMC_DMCR_EPIN |
+		(SDRAM_BW16 << EMC_DMCR_BW_BIT) |
+		EMC_DMCR_EPIN |
 		cas_latency_dmcr[((SDRAM_CASL == 3) ? 1 : 0)];
 
 	/* Basic DMCR value */
 	dmcr = ((SDRAM_ROW - 11) << EMC_DMCR_RA_BIT) |
 		((SDRAM_COL - 8) << EMC_DMCR_CA_BIT) |
 		(SDRAM_BANK4 << EMC_DMCR_BA_BIT) |
-		(SDRAM_BW16 << EMC_DMCR_BW_BIT) | EMC_DMCR_EPIN |
+		(SDRAM_BW16 << EMC_DMCR_BW_BIT) |
+		EMC_DMCR_EPIN |
 		cas_latency_dmcr[((SDRAM_CASL == 3) ? 1 : 0)];
 
 	/* SDRAM timimg */
@@ -125,27 +127,27 @@ void sdram_init(void)
 		tmp = 4;
 	if (tmp > 11)
 		tmp = 11;
-	dmcr |= ((tmp-4) << EMC_DMCR_TRAS_BIT);
+	dmcr |= (tmp - 4) << EMC_DMCR_TRAS_BIT;
 	tmp = SDRAM_RCD / ns;
 
 	if (tmp > 3)
 		tmp = 3;
-	dmcr |= (tmp << EMC_DMCR_RCD_BIT);
+	dmcr |= tmp << EMC_DMCR_RCD_BIT;
 	tmp = SDRAM_TPC / ns;
 
 	if (tmp > 7)
 		tmp = 7;
-	dmcr |= (tmp << EMC_DMCR_TPC_BIT);
+	dmcr |= tmp << EMC_DMCR_TPC_BIT;
 	tmp = SDRAM_TRWL / ns;
 
 	if (tmp > 3)
 		tmp = 3;
-	dmcr |= (tmp << EMC_DMCR_TRWL_BIT);
+	dmcr |= tmp << EMC_DMCR_TRWL_BIT;
 	tmp = (SDRAM_TRAS + SDRAM_TPC) / ns;
 
 	if (tmp > 14)
 		tmp = 14;
-	dmcr |= (((tmp + 1) >> 1) << EMC_DMCR_TRC_BIT);
+	dmcr |= ((tmp + 1) >> 1) << EMC_DMCR_TRC_BIT;
 
 	/* SDRAM mode value */
 	sdmode = EMC_SDMR_BT_SEQ |
@@ -208,7 +210,7 @@ static void calc_clocks(void)
 
 static void rtc_init(void)
 {
-	struct jz4740_rtc *rtc = (struct jz4740_rtc *) JZ4740_RTC_BASE;
+	struct jz4740_rtc *rtc = (struct jz4740_rtc *)JZ4740_RTC_BASE;
 
 	while (!(readl(&rtc->rcr) & RTC_RCR_WRDY))
 		;
@@ -230,7 +232,7 @@ static void rtc_init(void)
 /* U-Boot common routines */
 phys_size_t initdram(int board_type)
 {
-	struct jz4740_emc *emc = (struct jz4740_emc *) JZ4740_EMC_BASE;
+	struct jz4740_emc *emc = (struct jz4740_emc *)JZ4740_EMC_BASE;
 	u32 dmcr;
 	u32 rows, cols, dw, banks;
 	ulong size;

@@ -40,12 +40,12 @@
 	:								\
 	: "i" (op), "R" (*(unsigned char *)(addr)))
 
-#if !defined (CONFIG_NAND_SPL) && !defined (CONFIG_MSC_SPL)
+#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_MSC_SPL)
 
 void __attribute__((weak)) _machine_restart(void)
 {
-	struct jz4740_wdt *wdt = (struct jz4740_wdt *) JZ4740_WDT_BASE;
-	struct jz4740_tcu *tcu = (struct jz4740_tcu *) JZ4740_TCU_BASE;
+	struct jz4740_wdt *wdt = (struct jz4740_wdt *)JZ4740_WDT_BASE;
+	struct jz4740_tcu *tcu = (struct jz4740_tcu *)JZ4740_TCU_BASE;
 
 	writew((readw(&wdt->tcsr) &
 		~(WDT_TCSR_EXT_EN | WDT_TCSR_RTC_EN | WDT_TCSR_PCK_EN))

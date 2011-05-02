@@ -27,13 +27,13 @@
 #define TIMER_CHAN  0
 #define TIMER_FDATA 0xffff  /* Timer full data value */
 
-void   reset_timer_masked      (void);
-ulong  get_timer_masked        (void);
-void   udelay_masked           (unsigned long usec);
+void reset_timer_masked(void);
+ulong get_timer_masked(void);
+void udelay_masked(unsigned long usec);
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct jz4740_tcu *tcu = (struct jz4740_tcu *) JZ4740_TCU_BASE;
+static struct jz4740_tcu *tcu = (struct jz4740_tcu *)JZ4740_TCU_BASE;
 
 /*
  * timer without interrupts
@@ -48,8 +48,8 @@ int timer_init(void)
 
 	/* mask irqs */
 	writel((1 << TIMER_CHAN) | (1 << (TIMER_CHAN + 16)), &tcu->tmsr);
-	writel((1 << TIMER_CHAN), &tcu->tscr);/* enable timer clock */
-	writeb((1 << TIMER_CHAN), &tcu->tesr); /* start counting up */
+	writel(1 << TIMER_CHAN, &tcu->tscr); /* enable timer clock */
+	writeb(1 << TIMER_CHAN, &tcu->tesr); /* start counting up */
 
 	gd->lastinc = 0;
 	gd->tbl = 0;
@@ -59,12 +59,12 @@ int timer_init(void)
 
 void reset_timer(void)
 {
-	reset_timer_masked ();
+	reset_timer_masked();
 }
 
 ulong get_timer(ulong base)
 {
-	return get_timer_masked () - base;
+	return get_timer_masked() - base;
 }
 
 void set_timer(ulong t)
@@ -84,37 +84,39 @@ void __udelay(unsigned long usec)
 	} else {
 		if (usec >= 1) {
 			tmo = usec * CONFIG_SYS_HZ;
-			tmo /= (1000 * 1000);
+			tmo /= 1000 * 1000;
 		} else
 			tmo = 1;
 	}
 
 	/* check for rollover during this delay */
-	tmp = get_timer (0);
-	if ((tmp + tmo) < tmp )
+	tmp = get_timer(0);
+	if ((tmp + tmo) < tmp)
 		reset_timer_masked();  /* timer would roll over */
 	else
 		tmo += tmp;
 
-	while (get_timer_masked () < tmo)
+	while (get_timer_masked() < tmo)
 		;
 }
 
-void reset_timer_masked (void)
+void reset_timer_masked(void)
 {
 	/* reset time */
 	gd->lastinc = readw(&tcu->tcnt0);
 	gd->tbl = 0;
 }
 
-ulong get_timer_masked (void)
+ulong get_timer_masked(void)
 {
 	ulong now = readw(&tcu->tcnt0);
 
 	if (gd->lastinc <= now)
-		gd->tbl += (now - gd->lastinc);/* normal mode */
-	else
-		gd->tbl += TIMER_FDATA + now - gd->lastinc;/* we have an overflow ... */
+		gd->tbl += now - gd->lastinc; /* normal mode */
+	else {
+		/* we have an overflow ... */
+		gd->tbl += TIMER_FDATA + now - gd->lastinc;
+	}
 
 	gd->lastinc = now;
 
@@ -135,15 +137,15 @@ void udelay_masked(unsigned long usec)
 	} else {
 		if (usec > 1) {
 			tmo = usec * CONFIG_SYS_HZ;
-			tmo /= (1000*1000);
+			tmo /= 1000*1000;
 		} else
 			tmo = 1;
 	}
 
-	endtime = get_timer_masked () + tmo;
+	endtime = get_timer_masked() + tmo;
 
 	do {
-		ulong now = get_timer_masked ();
+		ulong now = get_timer_masked();
 		diff = endtime - now;
 	} while (diff >= 0);
 }
@@ -161,7 +163,7 @@ unsigned long long get_ticks(void)
  * This function is derived from PowerPC code (timebase clock frequency).
  * On MIPS it returns the number of timer ticks per second.
  */
-ulong get_tbclk (void)
+ulong get_tbclk(void)
 {
 	return CONFIG_SYS_HZ;
 }
