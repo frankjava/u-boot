@@ -46,15 +46,19 @@ void __attribute__((weak)) _machine_restart(void)
 {
 	struct jz4740_wdt *wdt = (struct jz4740_wdt *)JZ4740_WDT_BASE;
 	struct jz4740_tcu *tcu = (struct jz4740_tcu *)JZ4740_TCU_BASE;
+	u16 tmp;
 
-	writew((readw(&wdt->tcsr) &
-		~(WDT_TCSR_EXT_EN | WDT_TCSR_RTC_EN | WDT_TCSR_PCK_EN))
-	       | WDT_TCSR_EXT_EN, &wdt->tcsr);
 	/* wdt_select_extalclk() */
+	tmp = readw(&wdt->tcsr);
+	tmp &= ~(WDT_TCSR_EXT_EN | WDT_TCSR_RTC_EN | WDT_TCSR_PCK_EN);
+	tmp |= WDT_TCSR_EXT_EN;
+	writew(tmp, &wdt->tcsr);
 
-	writew((readw(&wdt->tcsr) &
-		~WDT_TCSR_PRESCALE_MASK) | WDT_TCSR_PRESCALE64, &wdt->tcsr);
 	/* wdt_select_clk_div64() */
+	tmp = readw(&wdt->tcsr);
+	tmp &= ~WDT_TCSR_PRESCALE_MASK;
+	tmp |= WDT_TCSR_PRESCALE64,
+	writew(tmp, &wdt->tcsr);
 
 	writew(100, &wdt->tdr); /* wdt_set_data(100) */
 	writew(0, &wdt->tcnt); /* wdt_set_count(0); */
@@ -121,16 +125,16 @@ void flush_icache_all(void)
 {
 	u32 addr, t = 0;
 
-	asm volatile ("mtc0 $0, $28"); /* Clear Taglo */
-	asm volatile ("mtc0 $0, $29"); /* Clear TagHi */
+	__asm__ __volatile__("mtc0 $0, $28"); /* Clear Taglo */
+	__asm__ __volatile__("mtc0 $0, $29"); /* Clear TagHi */
 
-	for (addr = KSEG0; addr < KSEG0 + CONFIG_SYS_ICACHE_SIZE;
+	for (addr = CKSEG0; addr < CKSEG0 + CONFIG_SYS_ICACHE_SIZE;
 	     addr += CONFIG_SYS_CACHELINE_SIZE) {
 		cache_op(Index_Store_Tag_I, addr);
 	}
 
 	/* invalidate btb */
-	asm volatile (
+	__asm__ __volatile__(
 		".set mips32\n\t"
 		"mfc0 %0, $16, 7\n\t"
 		"nop\n\t"
@@ -145,12 +149,12 @@ void flush_dcache_all(void)
 {
 	u32 addr;
 
-	for (addr = KSEG0; addr < KSEG0 + CONFIG_SYS_DCACHE_SIZE;
+	for (addr = CKSEG0; addr < CKSEG0 + CONFIG_SYS_DCACHE_SIZE;
 	     addr += CONFIG_SYS_CACHELINE_SIZE) {
 		cache_op(Index_Writeback_Inv_D, addr);
 	}
 
-	asm volatile ("sync");
+	__asm__ __volatile__("sync");
 }
 
 void flush_cache_all(void)

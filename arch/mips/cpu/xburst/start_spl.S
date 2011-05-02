@@ -54,15 +54,13 @@ reset:
 
 	bal	1f
 	 nop
-	.word   _GLOBAL_OFFSET_TABLE_
+	.word	_gp
 1:
-	move	gp, ra
-	lw	t1, 0(ra)
-	move	gp, t1
+	lw	gp, 0(ra)
 
 	/* Set up temporary stack */
-	la	sp, 0x80004000
+	li	sp, 0x80004000
 
 	la	t9, nand_boot
-	j	t9
+	jr	t9
 	 nop

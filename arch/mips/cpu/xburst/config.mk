@@ -20,14 +20,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-v=$(shell $(AS) --version | grep 'GNU assembler' | egrep -o '2\.[0-9\.]+' | cut -d. -f2)
-MIPSFLAGS:=$(shell \
-if [ "$v" -lt "14" ]; then \
-	echo "-mcpu=4kc"; \
-else \
-	echo "-march=4kc -mtune=4kc"; \
-fi)
 
-MIPSFLAGS += -mabicalls -mips32
-
-PLATFORM_CPPFLAGS += $(MIPSFLAGS)
+PLATFORM_CPPFLAGS += -march=mips32 -EL
+PLATFORM_LDFLAGS += -EL
