@@ -28,7 +28,7 @@
 #define EMC_SMCR1_OPT_NAND	0x094c4400
 /* Optimize the timing of nand */
 
-static struct jz4740_emc * emc = (struct jz4740_emc *) JZ4740_EMC_BASE;
+static struct jz4740_emc * emc = (struct jz4740_emc *)JZ4740_EMC_BASE;
 
 static struct nand_ecclayout qi_lb60_ecclayout_2gb = {
 	.eccbytes = 72,
@@ -41,12 +41,12 @@ static struct nand_ecclayout qi_lb60_ecclayout_2gb = {
 		52, 53, 54, 55, 56, 57, 58, 59,
 		60, 61, 62, 63, 64, 65, 66, 67,
 		68, 69, 70, 71, 72, 73, 74, 75,
-		76, 77, 78, 79, 80, 81, 82, 83},
+		76, 77, 78, 79, 80, 81, 82, 83 },
 	.oobfree = {
 		{.offset = 2,
-		 .length = 10},
+		 .length = 10 },
 		{.offset = 84,
-		 .length = 44}}
+		 .length = 44 }}
 };
 
 static int is_reading;
@@ -54,6 +54,7 @@ static int is_reading;
 static void jz_nand_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *this = mtd->priv;
+	uint32_t reg;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		if (ctrl & NAND_ALE)
@@ -63,10 +64,12 @@ static void jz_nand_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 		else
 			this->IO_ADDR_W = JZ_NAND_DATA_ADDR;
 
+		reg = readl(&emc->nfcsr);
 		if (ctrl & NAND_NCE)
-			writel(readl(&emc->nfcsr) | EMC_NFCSR_NFCE1, &emc->nfcsr);
+			reg |= EMC_NFCSR_NFCE1;
 		else
-			writel(readl(&emc->nfcsr) & ~EMC_NFCSR_NFCE1, &emc->nfcsr);
+			reg &= ~EMC_NFCSR_NFCE1;
+		writel(reg, &emc->nfcsr);
 	}
 
 	if (cmd != NAND_CMD_NONE)
@@ -97,7 +100,7 @@ static int jz_nand_rs_calculate_ecc(struct mtd_info* mtd, const u_char* dat,
 
 	do {
 		status = readl(&emc->nfints);
-	} while(!(status & EMC_NFINTS_ENCF));
+	} while (!(status & EMC_NFINTS_ENCF));
 
 	/* disable ecc */
 	writel(readl(&emc->nfecr) & ~EMC_NFECR_ECCE, &emc->nfecr);
@@ -149,7 +152,7 @@ static void jz_rs_correct(unsigned char *dat, int idx, int mask)
 
 	dat[i] ^= mask & 0xff;
 	if (i < 511)
-		dat[i+1] ^= (mask >> 8) & 0xff;
+		dat[i + 1] ^= (mask >> 8) & 0xff;
 }
 
 static int jz_nand_rs_correct_data(struct mtd_info *mtd, u_char *dat,
